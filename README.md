@@ -15,7 +15,7 @@ The code defaults to the "Fast NNLS" algorithm. To specify a different algorithm
 nonneg_lsq(A,b;alg=:nnls)  # NNLS
 nonneg_lsq(A,b;alg=:fnnls) # Fast NNLS
 nonneg_lsq(A,b;alg=:convex,solver=:SCS) # using Convex.jl with SCSSolver
-nonneg_lsq(A,b;alg=:convex,solver=:SCS,verbose=false) # prevents SCS from printing output
+nonneg_lsq(A,b;alg=:convex,solver=:SCS,verbose=false) # stops SCS from printing
 ```
 
 Default behaviors:
