@@ -5,7 +5,6 @@ Solves non-negative least-squares problem by the active set method
 of Lawson & Hanson (1974).
 
 Optional arguments:
-    x0: initial guess for the solution
     tol: tolerance for nonnegativity constraints
     max_iter: maximum number of iterations (counts inner loop iterations)
 
@@ -15,7 +14,6 @@ References:
 """
 function nnls(A::Matrix{Float64},
               b::Vector{Float64};
-              x0::Vector{Float64}=zeros(size(A,2)),
               tol::Float64=1e-8,
               max_iter=5*size(A,2))
 
@@ -29,7 +27,8 @@ function nnls(A::Matrix{Float64},
     end
     x = x0 # rename x0, initialize solution
     
-    # Store x[P] > 0 and x[~P] == 0
+    # P is a bool array storing positive elements of x
+    # i.e., x[P] > 0 and x[~P] == 0
     P = x .> tol 
     w = A' * (b - A*x)
 
