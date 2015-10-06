@@ -1,5 +1,8 @@
 using Base.Test
-include("nnls.jl")
+using NonNegLeastSquares
+
+# wrapper function for convienence
+nnls(A,b) = nonneg_lsq(A,b;alg=:nnls)
 
 # Solve A*x = b for x, subject to x >=0 
 A = [ 0.53879488  0.65816267 
@@ -11,7 +14,7 @@ b = [0.888,  0.562,  0.255,  0.077]
 
 # Test that nnls produces the same solution as scipy
 x = [0.15512102, 0.69328985] # approx solution from scipy
-@test norm(nnls(A,b)-x) < 1e-5
+@test norm(nonneg_lsq(A,b;alg=:)-x) < 1e-5
 
 
 ## A second test case
@@ -34,4 +37,13 @@ for i = 1:10
 	b3 = randn(m)
 	x3,resid = pyopt.nnls(A3,b3)
 	@test norm(nnls(A3,b3)-x3) < 1e-5
+end
+
+## Test random cases with initial guess
+for i = 1:10
+	m,n = rand(1:10),rand(1:10)
+	A3 = randn(m,n)
+	b3 = randn(m)
+	x3,resid = pyopt.nnls(A3,b3)
+	@test norm(nnls(A3,b3,x0=rand(m))-x3) < 1e-5
 end

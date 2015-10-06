@@ -14,7 +14,7 @@ b = [0.888,  0.562,  0.255,  0.077]
 
 # Test that nnls produces the same solution as scipy
 x = [0.15512102, 0.69328985] # approx solution from scipy
-@test norm(nonneg_lsq(A,b;alg=:)-x) < 1e-5
+@test norm(nnls(A,b)-x) < 1e-5
 
 
 ## A second test case

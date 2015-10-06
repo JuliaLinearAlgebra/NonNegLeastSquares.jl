@@ -1,6 +1,6 @@
 module NonNegLeastSquares
 
-export lsqnonneg
+export nonneg_lsq
 
 ## Algorithms
 include("nnls.jl")
