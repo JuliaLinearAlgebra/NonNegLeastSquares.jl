@@ -3,6 +3,7 @@ using NonNegLeastSquares
 
 # wrapper function for convienence
 nnls(A,b) = nonneg_lsq(A,b;alg=:nnls)
+nnls(A,b,x0) = nonneg_lsq(A,b;x0=x0,alg=:nnls)
 
 # Solve A*x = b for x, subject to x >=0 
 A = [ 0.53879488  0.65816267 
@@ -45,5 +46,5 @@ for i = 1:10
 	A3 = randn(m,n)
 	b3 = randn(m)
 	x3,resid = pyopt.nnls(A3,b3)
-	@test norm(nnls(A3,b3,x0=rand(m))-x3) < 1e-5
+	@test norm(nnls(A3,b3,rand(m))-x3) < 1e-5
 end
