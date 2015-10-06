@@ -9,13 +9,18 @@ Minimize `||A*x - b||` subject to `xᵢ >= 0`, where `A` (a matrix) and `b` (a v
 
 ### Currently Implemented Algorithms:
 
-Specify the algorithm with the keyword argument `alg`. Currently implemented algorithms are:
-
-* **NNLS**: Lawson, C.L. and R.J. Hanson, Solving Least-Squares Problems, Prentice-Hall, Chapter 23, p. 161, 1974.
+The code defaults to the "Fast NNLS" algorithm. To specify a different algorithm, use the keyword argument `alg`. Currently implemented algorithms are:
 
 ```julia
-nonneg_lsq(A,b;alg=:nnls)
+nonneg_lsq(A,b;alg=:nnls)  # NNLS
+nonneg_lsq(A,b;alg=:fnnls) # Fast NNLS
 ```
+
+***References***
+* **NNLS**:
+      * Lawson, C.L. and R.J. Hanson, Solving Least-Squares Problems, Prentice-Hall, Chapter 23, p. 161, 1974.
+* **Fast NNLS**:
+      * Bro R, De Jong S. [A fast non-negativitity-constrained least squares algorithm](https://dx.doi.org/10.1002%2F%28SICI%291099-128X%28199709%2F10%2911%3A5%3C393%3A%3AAID-CEM483%3E3.0.CO%3B2-L). Journal of Chemometrics. 11, 393–401 (1997)
 
 ### Installation:
 
@@ -52,6 +57,18 @@ Produces:
  0.0  
 ```
 
+### Speed Comparisons:
+
+```julia
+@time nonneg_lsq(randn(200,200),randn(200),alg=:nnls)
+#     4.752788 seconds (27.38 k allocations: 342.046 MB, 0.57% gc time)
+```
+
+```julia
+@time nonneg_lsq(randn(200,200),randn(200),alg=:fnnls)
+#     0.151799 seconds (23.58 k allocations: 13.199 MB, 1.11% gc time)
+```
+
 ### Algorithims That Need Implementing:
 
-* **Fast NNLS**: [Bro & De Jong (1997)](https://dx.doi.org/10.1002%2F%28SICI%291099-128X%28199709%2F10%2911%3A5%3C393%3A%3AAID-CEM483%3E3.0.CO%3B2-L)
+* ftp://net9.cs.utexas.edu/pub/techreports/tr06-54.pdf
