@@ -38,12 +38,3 @@ for i = 1:10
 	x3,resid = pyopt.nnls(A3,b3)
 	@test norm(nnls(A3,b3)-x3) < 1e-5
 end
-
-## Test random cases with initial guess
-for i = 1:10
-	m,n = rand(1:10),rand(1:10)
-	A3 = randn(m,n)
-	b3 = randn(m)
-	x3,resid = pyopt.nnls(A3,b3)
-	@test norm(nnls(A3,b3,rand(n))-x3) < 1e-5
-end

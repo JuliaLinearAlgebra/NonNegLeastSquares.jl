@@ -17,24 +17,18 @@ function nnls(A::Matrix{Float64},
               tol::Float64=1e-8,
               max_iter=5*size(A,2))
 
+    # dimensions, initialize solution
     m,n = size(A)
+    x = zeros(n)
 
-    # check x0 input
-    neg_entries = x0 .< 0.0
-    if any(neg_entries)
-        warn("x0 contains negative values, projecting onto positive orthant")
-        x0[neg_entries] = 0.0
-    end
-    x = x0 # rename x0, initialize solution
-    
     # P is a bool array storing positive elements of x
     # i.e., x[P] > 0 and x[~P] == 0
-    P = x .> tol 
-    w = A' * (b - A*x)
+    P = zeros(Bool,n)
 
     # KKT conditions, we have reached an optimum when either:
     #   (a) all elements of x are positive (no nonneg constraints activated)
     #   (b) A' * (b - A*xᵢ) > 0 for all nonpositive elements xᵢ
+    w = A' * (b - A*x)
     iter = 0
     while sum(P)<n && any(w[~P].>tol) && iter < max_iter
 
