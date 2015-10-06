@@ -5,6 +5,7 @@ export nonneg_lsq
 ## Algorithms
 include("nnls.jl")
 include("fnnls.jl")
+include("convex.jl")
 
 ## Common interface to algorithms
 """
@@ -31,6 +32,8 @@ function nonneg_lsq(
 		return nnls(A, b; kwargs...)
 	elseif alg == :fnnls
 		return fnnls(A'*A, A'*b; kwargs...)
+	elseif alg == :convex
+		return convex_nnls(A, b; kwargs...)
 	else
 		error("Specified algorithm :",alg," not recognized.")
 	end
