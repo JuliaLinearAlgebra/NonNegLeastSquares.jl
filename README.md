@@ -14,6 +14,15 @@ The code defaults to the "Fast NNLS" algorithm. To specify a different algorithm
 ```julia
 nonneg_lsq(A,b;alg=:nnls)  # NNLS
 nonneg_lsq(A,b;alg=:fnnls) # Fast NNLS
+nonneg_lsq(A,b;alg=:convex,solver=:SCS) # using Convex.jl with SCSSolver
+nonneg_lsq(A,b;alg=:convex,solver=:SCS,verbose=false) # prevents SCS from printing output
+```
+
+Default behaviors:
+
+```julia
+nonneg_lsq(A,b) # Fast NNLS
+nonneg_lsq(A,b;alg=:convex) # uses SCSSolver
 ```
 
 ***References***
@@ -59,14 +68,26 @@ Produces:
 
 ### Speed Comparisons:
 
+**NNLS** vs. **Fast NNLS**
+
 ```julia
 @time nonneg_lsq(randn(200,200),randn(200),alg=:nnls)
 #     4.752788 seconds (27.38 k allocations: 342.046 MB, 0.57% gc time)
 ```
-
 ```julia
 @time nonneg_lsq(randn(200,200),randn(200),alg=:fnnls)
 #     0.151799 seconds (23.58 k allocations: 13.199 MB, 1.11% gc time)
+```
+
+**Fast NNLS** vs. **Convex.jl**
+
+```julia
+@time nonneg_lsq(randn(1000,1000),randn(1000),alg=:fnnls)
+#     5.414385 seconds (46.20 k allocations: 1.013 GB, 2.42% gc time)
+```
+```julia
+@time nonneg_lsq(randn(1000,1000),randn(1000),alg=:convex,solver=:SCS)
+#     18.688281 seconds (25.85 k allocations: 325.605 MB, 0.51% gc time)
 ```
 
 ### Algorithims That Need Implementing:
