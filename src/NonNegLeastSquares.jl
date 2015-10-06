@@ -4,6 +4,7 @@ export nonneg_lsq
 
 ## Algorithms
 include("nnls.jl")
+include("fnnls.jl")
 
 ## Common interface to algorithms
 """
@@ -22,12 +23,14 @@ Optional arguments
 function nonneg_lsq(
 	A::Matrix{Float64},
 	b::Vector{Float64};
-	alg::Symbol = :nnls,
+	alg::Symbol = :fnnls,
 	kwargs...
     )
 
 	if alg == :nnls
 		return nnls(A, b; kwargs...)
+	elseif alg == :fnnls
+		return fnnls(A'*A, A'*b; kwargs...)
 	else
 		error("Specified algorithm :",alg," not recognized.")
 	end
