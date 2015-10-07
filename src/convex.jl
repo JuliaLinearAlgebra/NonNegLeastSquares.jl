@@ -1,5 +1,6 @@
 using Convex
 using SCS
+using ECOS
 
 """
 x = convex_nnls(A, b, solver; kwargs...)
@@ -22,6 +23,8 @@ function convex_nnls(
 
 	if solver == :SCS
 		solve!(problem,SCSSolver(kwargs))
+	elseif solver == :ECOS
+		solve!(problem,ECOSSolver(kwargs))
 	else
 		error("solver symbol not recognized")
 	end

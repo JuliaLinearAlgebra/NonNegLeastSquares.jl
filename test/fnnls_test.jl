@@ -1,5 +1,6 @@
 using Base.Test
 using NonNegLeastSquares
+using PyCall
 
 # wrapper functions for convienence
 nnls(A,b) = nonneg_lsq(A,b;alg=:nnls)
@@ -29,7 +30,6 @@ x2 = [2.2010416, 1.19009924, 0.0, 1.55001345, 0.0]
 @test norm(fnnls(A2,b2)-x2) < 1e-5
 
 ## Test a bunch of random cases against python
-using PyCall
 @pyimport scipy.optimize as pyopt
 
 for i = 1:10
