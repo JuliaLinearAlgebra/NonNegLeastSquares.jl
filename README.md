@@ -16,6 +16,7 @@ nonneg_lsq(A,b;alg=:nnls)  # NNLS
 nonneg_lsq(A,b;alg=:fnnls) # Fast NNLS
 nonneg_lsq(A,b;alg=:convex,solver=:SCS) # using Convex.jl with SCSSolver
 nonneg_lsq(A,b;alg=:convex,solver=:SCS,verbose=false) # stops SCS from printing
+nonneg_lsq(A,b;alg=:convex,solver=:ECOS) # using Convex.jl with ECOSSolver
 ```
 
 Default behaviors:
@@ -30,6 +31,8 @@ nonneg_lsq(A,b;alg=:convex) # uses SCSSolver
       * Lawson, C.L. and R.J. Hanson, Solving Least-Squares Problems, Prentice-Hall, Chapter 23, p. 161, 1974.
 * **Fast NNLS**:
       * Bro R, De Jong S. [A fast non-negativitity-constrained least squares algorithm](https://dx.doi.org/10.1002%2F%28SICI%291099-128X%28199709%2F10%2911%3A5%3C393%3A%3AAID-CEM483%3E3.0.CO%3B2-L). Journal of Chemometrics. 11, 393–401 (1997)
+* **Convex.jl**
+     * https://github.com/JuliaOpt/Convex.jl
 
 ### Installation:
 
@@ -88,6 +91,10 @@ Produces:
 ```julia
 @time nonneg_lsq(randn(1000,1000),randn(1000),alg=:convex,solver=:SCS)
 #     18.688281 seconds (25.85 k allocations: 325.605 MB, 0.51% gc time)
+```
+```julia
+@time nonneg_lsq(randn(1000,1000),randn(1000),alg=:convex,solver=:ECOS)
+#     32.114776 seconds (23.72 k allocations: 299.724 MB, 0.22% gc time)
 ```
 
 ### Algorithims That Need Implementing:
