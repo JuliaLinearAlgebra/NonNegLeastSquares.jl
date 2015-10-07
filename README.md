@@ -28,11 +28,11 @@ nonneg_lsq(A,b;alg=:convex) # uses SCSSolver
 
 ***References***
 * **NNLS**:
-      * Lawson, C.L. and R.J. Hanson, Solving Least-Squares Problems, Prentice-Hall, Chapter 23, p. 161, 1974.
+     * Lawson, C.L. and R.J. Hanson, Solving Least-Squares Problems, Prentice-Hall, Chapter 23, p. 161, 1974.
 * **Fast NNLS**:
-      * Bro R, De Jong S. [A fast non-negativitity-constrained least squares algorithm](https://dx.doi.org/10.1002%2F%28SICI%291099-128X%28199709%2F10%2911%3A5%3C393%3A%3AAID-CEM483%3E3.0.CO%3B2-L). Journal of Chemometrics. 11, 393–401 (1997)
-* **Convex.jl**
-     * https://github.com/JuliaOpt/Convex.jl
+     * Bro R, De Jong S. [A fast non-negativitity-constrained least squares algorithm](https://dx.doi.org/10.1002%2F%28SICI%291099-128X%28199709%2F10%2911%3A5%3C393%3A%3AAID-CEM483%3E3.0.CO%3B2-L). Journal of Chemometrics. 11, 393–401 (1997)
+* [**Convex.jl**](https://github.com/JuliaOpt/Convex.jl)
+     * Udell et al. [Convex Optimization in Julia](https://web.stanford.edu/~boyd/papers/pdf/convexjl.pdf). SC14 Workshop on High Performance Technical Computing in Dynamic Languages. (2014)
 
 ### Installation:
 
