@@ -10,17 +10,23 @@ specified by "solver".
 """
 function convex_nnls(
 	A::Matrix{Float64},
-	b::Vector{Float64};
+	B::Array{Float64};
 	solver::Symbol = :SCS,
 	kwargs...)
+
+	# Check dimensions
+	if ndims(B) > 2
+		error("B must be a matrix or a vector")
+	elseif ndims(B) == 2
+		X = Variable(size(B,1),size(B,2))
+	else
+		X = Variable(length(B))
+	end
+
+	# declare problem
+	problem  = minimize(sumsquares(B - (A*X)), [X >= 0])
 	
-	# dimensions
-	m,n = size(A)
-
 	# solve problem
-	x = Variable(n)
-	problem  = minimize(sumsquares(b - (A*x)), [x >= 0])
-
 	if solver == :SCS
 		solve!(problem,SCSSolver(kwargs))
 	elseif solver == :ECOS
@@ -29,10 +35,11 @@ function convex_nnls(
 		error("solver symbol not recognized")
 	end
 
+	# check solution
 	if problem.status != :Optimal
 		warn("Solving for H problem status is :",problem.status)
 	end
 
 	# return solution
-	return x.value
+	return X.value
 end
