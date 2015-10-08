@@ -36,14 +36,6 @@ function pivot_nnls(C::Matrix{Float64},
     x[F] =  C[:,F] \ b
     y[G] =  C[:,G]' * (C[:,F]*x[F] - b)
 
- #    println(round(x',2))
-	# println(round(y',2))
-	# println(round(Int,F))
-	# println(round(Int,G))
-	# println(round(Int,(F & (x.<-tol)) | (G & (y.<-tol))))
-	# println("****")
-	# sleep(1)
-
     # while infeasible
     while any(x[F] .< -tol) || any(y[G] .< -tol)
 
@@ -68,25 +60,16 @@ function pivot_nnls(C::Matrix{Float64},
     	end
 
     	# update partition of variables
-		V_and_G = V & G # infeasible variables in set G (move to F)
-		V_and_F = V & F # infeasible variables in set F (move to G)
-		notV = ~V
-		F = (F & notV) | V_and_G
-		G = (G & notV) | V_and_F
+        #     F & ~V removes infeasible variables from F 
+        #     V & G  moves infeasible variables in G to F
+		F = (F & ~V) | V & G
+		G = ~F # G is always the complement of set F
 
 		# update primal/dual variables
 		x[F] =  C[:,F] \ b
 		y[G] =  C[:,G]' * ((C[:,F]*x[F]) - b)
-
-		# println(round(x',2))
-		# println(round(y',2))
-		# println(round(Int,F))
-		# println(round(Int,G))
-		# println(round(Int,(F & (x .< -tol)) | (G & (y .< -tol))))
-		# println("****")
-		# sleep(1)
     end
 
-    x[~F] = 0.0
+    x[G] = 0.0
     return x
 end
