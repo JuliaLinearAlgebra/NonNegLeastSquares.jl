@@ -13,7 +13,7 @@ Optional arguments
 function nonneg_lsq(
 	A::Matrix{Float64},
 	b::Vector{Float64};
-	alg::Symbol = :fnnls,
+	alg::Symbol = :pivot,
 	kwargs...
     )
 
@@ -23,6 +23,8 @@ function nonneg_lsq(
 		return fnnls(A'*A, A'*b; kwargs...)
 	elseif alg == :convex
 		return convex_nnls(A, b; kwargs...)
+	elseif alg == :pivot
+		return pivot_nnls(A, b; kwargs...)
 	else
 		error("Specified algorithm :",alg," not recognized.")
 	end
@@ -44,27 +46,29 @@ Optional arguments
 function nonneg_lsq(
 	A::Matrix{Float64},
 	B::Matrix{Float64};
-	alg::Symbol = :fnnls,
+	alg::Symbol = :pivot,
 	kwargs...
 	)
 
 	# check dimensions
 	m,n = size(A)
+	k = size(B,2)
 	if size(B,1) != n
 		error("Dimension mismatch")
 	end
 
-	if alg == :convex
-		# Convex.jl handles matrix variables
-		return convex_nnls(A, B; kwargs...)
-	elseif (alg == :nnls) || (alg == :fnnls)
-		# NNLS and Fast NNLS solve each column sequentially
-		k = size(B,2)
+	# List of algorithms that only work with vector "b"
+	single_rhs_algs = [:nnls,:fnnls,:pivot]
+
+	if alg in single_rhs_algs
+		# Solve each column of X sequentially
 		X = zeros(n,k)
 		for i = 1:k
-			X[:,i] = nonneg_lsq(A,B[:,i];alg=alg,kwargs...)
+			X[:,i] = nonneg_lsq(A, B[:,i]; alg=alg, kwargs...)
 		end
 		return X
+	elseif alg == :convex
+		return convex_nnls(A, b; kwargs...)
 	else
 		error("Specified algorithm :",alg," not recognized.")
 	end
