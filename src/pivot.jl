@@ -73,3 +73,24 @@ function pivot_nnls(C::Matrix{Float64},
     x[G] = 0.0
     return x
 end
+
+
+function pivot_nnls(A::Matrix{Float64},
+               B::Matrix{Float64};
+               kwargs...)
+
+    m,n = size(A)
+    k = size(B,2)
+
+    # cache matrix computations
+    #AtA = A'*A
+    #AtB = A'*B
+    
+    # compute result for each row
+    X = zeros(n,k)
+    for i = 1:k
+        X[:,i] = pivot_nnls(A, B[:,i]; kwargs...)
+    end
+    return X
+end
+

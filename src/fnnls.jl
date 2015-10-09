@@ -75,3 +75,24 @@ function fnnls(AtA::Matrix{Float64},
     end
     return x
 end
+
+function fnnls(A::Matrix{Float64},
+               B::Matrix{Float64};
+               kwargs...)
+
+    m,n = size(A)
+    k = size(B,2)
+
+    # cache matrix computations
+    AtA = A'*A
+    AtB = A'*B
+    
+    # compute result for each row
+    X = zeros(n,k)
+    for i = 1:k
+        X[:,i] = fnnls(AtA, AtB[:,i]; kwargs...)
+    end
+    return X
+end
+
+

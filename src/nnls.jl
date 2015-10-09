@@ -79,3 +79,17 @@ function nnls(A::Matrix{Float64},
     end
     return x
 end
+
+function nnls(A::Matrix{Float64},
+              B::Matrix{Float64};
+              kwargs...)
+
+    m,n = size(A)
+    k = size(B,2)
+
+    X = zeros(n,k)
+    for i = 1:k
+        X[:,i] = nnls(A, B[:,i]; kwargs...)
+    end
+    return X
+end
