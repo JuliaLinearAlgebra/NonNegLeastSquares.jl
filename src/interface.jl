@@ -23,8 +23,10 @@ function nonneg_lsq(
 		return fnnls(A, B; kwargs...)
 	elseif alg == :convex
 		return convex_nnls(A, B; kwargs...)
-	elseif alg == :pivot
-		return pivot_nnls(A, B; kwargs...)
+	elseif alg == :pivot || alg == :pivot_srhs
+		return pivot_srhs(A, B; kwargs...)
+	elseif alg == :pivot_mrhs
+		return pivot_mrhs(A, B; kwargs...)
 	else
 		error("Specified algorithm :",alg," not recognized.")
 	end

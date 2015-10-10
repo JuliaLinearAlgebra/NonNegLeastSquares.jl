@@ -1,5 +1,5 @@
 """
-x = nnls(A, b; ...)
+x = pivot_srhs(A, b; ...)
 
 Solves non-negative least-squares problem by block principal pivoting method 
 (Algorithm 1) described in Kim & Park (2011).
@@ -13,7 +13,7 @@ References:
 	active-set-like method and comparisons, SIAM J. Sci. Comput., 33 (2011),
 	pp. 3261–3281.
 """
-function pivot_nnls(C::Matrix{Float64},
+function pivot_srhs(C::Matrix{Float64},
                     b::Vector{Float64};
                     tol::Float64=1e-8,
                     max_iter=30*size(C,2))
@@ -75,21 +75,22 @@ function pivot_nnls(C::Matrix{Float64},
 end
 
 
-function pivot_nnls(A::Matrix{Float64},
+## if multiple right hand sides are provided, solve each problem sequentially.
+function pivot_srhs(A::Matrix{Float64},
                B::Matrix{Float64};
                kwargs...)
 
-    m,n = size(A)
+    n = size(A,2)
     k = size(B,2)
 
-    # cache matrix computations
+    # cache constant terms in pseudoinverse
     #AtA = A'*A
     #AtB = A'*B
     
     # compute result for each row
     X = zeros(n,k)
     for i = 1:k
-        X[:,i] = pivot_nnls(A, B[:,i]; kwargs...)
+        X[:,i] = pivot_srhs(A, B[:,i]; kwargs...)
     end
     return X
 end

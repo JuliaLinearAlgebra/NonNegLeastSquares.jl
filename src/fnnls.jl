@@ -18,7 +18,7 @@ function fnnls(AtA::Matrix{Float64},
                tol::Float64=1e-8,
                max_iter=30*size(AtA,2))
 
-    m,n = size(AtA)
+    n = size(AtA,1)
     x = zeros(n)
     s = zeros(n)
     
@@ -80,7 +80,7 @@ function fnnls(A::Matrix{Float64},
                B::Matrix{Float64};
                kwargs...)
 
-    m,n = size(A)
+    n = size(A,2)
     k = size(B,2)
 
     # cache matrix computations
