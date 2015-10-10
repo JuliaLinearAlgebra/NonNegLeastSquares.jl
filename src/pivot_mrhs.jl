@@ -32,16 +32,17 @@ function pivot_mrhs(A::Matrix{Float64},
     α = ones(r)*3
     β = ones(r)*(q+1)
 
-    # Divide elements into two sets
-    F = BitArray(zeros(q,r)) # we want Y[F] == 0, X[F] >= 0
-    G = BitArray(ones(q,r))  # we want X[G] == 0, Y[G] >= 0
+    # Store indices for the passive set, P
+    #    we want Y[P] == 0, X[P] >= 0
+    #    we want X[~P]== 0, Y[~P] >= 0
+    P = BitArray(zeros(q,r))
 
     # Update primal and dual variables
-    cssls!(AtA,AtB,X,F) # overwrite X[F]
+    cssls!(AtA,AtB,X,P) # overwrite X[P]
     Y = AtA*X - AtB
 
     # identify infeasible columns of X
-    V = (F & (X .< -tol)) | (G & (Y .< -tol)) # infeasible variables
+    V = (P & (X .< -tol)) | (~P & (Y .< -tol)) # infeasible variables
     infeasible_cols = any(V, 1) # collapse each column
 
     # while infeasible
@@ -67,23 +68,22 @@ function pivot_mrhs(A::Matrix{Float64},
             end
         end
         
-        # Update partition of variables in F and G
-        #     F & ~V removes infeasible variables from F 
-        #     V & G  moves infeasible variables in G to F
-        F = (F & ~V) | V & G
-        G = ~F # G is always the complement of set F
+        # Update passive set
+        #     P & ~V removes infeasible variables from P 
+        #     V & ~P moves infeasible variables to the
+        P = (P & ~V) | (V & ~P)
 
         # Update primal and dual variables
-        cssls!(AtA,AtB,X,F) # overwrite X[F]
-        X[G] = 0.0
+        cssls!(AtA,AtB,X,P) # overwrite X[P]
+        X[~P] = 0.0
         Y[:,infeasible_cols] = AtA*X[:,infeasible_cols] - AtB[:,infeasible_cols]
-        Y[F] = 0.0 
+        Y[P] = 0.0 
 
         # identify infeasible columns of X
-        V = (F & (X .< -tol)) | (G & (Y .< -tol)) # infeasible variables
+        V = (P & (X .< -tol)) | (~P & (Y .< -tol)) # infeasible variables
         infeasible_cols = any(V, 1) # collapse each column
     end 
 
-    X[G] = 0.0
+    X[~P] = 0.0
     return X
 end

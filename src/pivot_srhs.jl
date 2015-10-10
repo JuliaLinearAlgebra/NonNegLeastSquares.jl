@@ -21,6 +21,7 @@ function pivot_srhs(C::Matrix{Float64},
 
     # dimensions, initialize solution
     p,q = size(C)
+
     x = zeros(q) # primal variables
     y = -C'*b    # dual variables
 
@@ -28,20 +29,20 @@ function pivot_srhs(C::Matrix{Float64},
     α = 3
     β = q+1
 
-    # Divide elements into two sets
-    F = zeros(Bool,q) # we want y[F] == 0, x[F] >= 0
-    G = ones(Bool,q)  # we want x[G] == 0, y[G] >= 0
+    # Store indices for the passive set, P
+    #    we want Y[P] == 0, X[P] >= 0
+    #    we want X[~P]== 0, Y[~P] >= 0
+    P = BitArray(q)
 
+    x[P] =  C[:,P] \ b
+    y[~P] =  C[:,~P]' * (C[:,P]*x[P] - b)
 
-    x[F] =  C[:,F] \ b
-    y[G] =  C[:,G]' * (C[:,F]*x[F] - b)
+    # identify indices of infeasible variables
+    V = (P & (x .< -tol)) | (~P & (y .< -tol))
+    nV = sum(V)
 
-    # while infeasible
-    while any(x[F] .< -tol) || any(y[G] .< -tol)
-
-    	# identify infeasible variables
-    	V = (F & (x .< -tol)) | (G & (y .< -tol))
-    	nV = sum(V)
+    # while infeasible (number of infeasible variables > 0)
+    while nV > 0
 
     	if nV < β
     		# infeasible variables decreased
@@ -59,18 +60,21 @@ function pivot_srhs(C::Matrix{Float64},
     		end
     	end
 
-    	# update partition of variables
-        #     F & ~V removes infeasible variables from F 
-        #     V & G  moves infeasible variables in G to F
-		F = (F & ~V) | V & G
-		G = ~F # G is always the complement of set F
+    	# update passive set
+        #     P & ~V removes infeasible variables from P 
+        #     V & ~P  moves infeasible variables in ~P to P
+		P = (P & ~V) | V & ~P
 
 		# update primal/dual variables
-		x[F] =  C[:,F] \ b
-		y[G] =  C[:,G]' * ((C[:,F]*x[F]) - b)
+		x[P] =  C[:,P] \ b
+		y[~P] =  C[:,~P]' * ((C[:,P]*x[P]) - b)
+
+        # check infeasibility
+        V = (P & (x .< -tol)) | (~P & (y .< -tol))
+        nV = sum(V)
     end
 
-    x[G] = 0.0
+    x[~P] = 0.0
     return x
 end
 
