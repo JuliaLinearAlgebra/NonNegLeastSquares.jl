@@ -1,5 +1,5 @@
 """
-x = pivot_mrhs(A, b; ...)
+x = pivot_comb(A, b; ...)
 
 Solves non-negative least-squares problem by block principal pivoting method 
 with combinatorial grouping of least-squares problems. Algorithm 2 described
@@ -14,7 +14,7 @@ References:
     active-set-like method and comparisons, SIAM J. Sci. Comput., 33 (2011),
     pp. 3261–3281.
 """
-function pivot_mrhs(A::Matrix{Float64},
+function pivot_comb(A::Matrix{Float64},
                B::Matrix{Float64};
                tol::Float64=1e-8,
                max_iter=30*size(A,2))

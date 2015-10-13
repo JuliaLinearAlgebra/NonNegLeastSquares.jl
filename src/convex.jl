@@ -2,37 +2,32 @@ using Convex
 using SCS
 using ECOS
 
+
 """
-x = convex_nnls(A, b, solver; kwargs...)
+x = convex(A, b, solver; kwargs...)
 
 Solves the nonnegative least-squares problem using Convex.jl and the solver
 specified by "solver". 
 """
-function convex_nnls(
+function convex(
 	A::Matrix{Float64},
-	B::Array{Float64};
-	solver::Symbol = :SCS,
+	B::Matrix{Float64};
+	variant::Symbol = :SCS,
 	kwargs...)
 
-	# Check dimensions
-	if ndims(B) > 2
-		error("B must be a matrix or a vector")
-	elseif ndims(B) == 2
-		X = Variable(size(B,1),size(B,2))
-	else
-		X = Variable(length(B))
-	end
-
+	# Primal optimization variables
+	X = Variable(size(A,2),size(B,2))
+	
 	# declare problem
 	problem  = minimize(sumsquares(B - (A*X)), [X >= 0])
 	
 	# solve problem
-	if solver == :SCS
+	if variant == :SCS
 		solve!(problem,SCSSolver(kwargs))
-	elseif solver == :ECOS
+	elseif variant == :ECOS
 		solve!(problem,ECOSSolver(kwargs))
 	else
-		error("solver symbol not recognized")
+		error("Specified solver :",variant," not recognized")
 	end
 
 	# check solution

@@ -1,3 +1,5 @@
+isdefined(Base, :__precompile__) && __precompile__()
+
 module NonNegLeastSquares
 
 export nonneg_lsq
@@ -6,8 +8,9 @@ export nonneg_lsq
 include("nnls.jl")
 include("fnnls.jl")
 include("convex.jl")
-include("pivot_mrhs.jl")
-include("pivot_srhs.jl")
+include("pivot.jl")
+include("pivot_comb.jl")
+include("pivot_cache.jl")
 
 ## Common interface to algorithms
 include("interface.jl")

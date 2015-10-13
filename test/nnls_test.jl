@@ -1,6 +1,4 @@
-using Base.Test
-using NonNegLeastSquares
-using PyCall
+
 
 # wrapper function for convienence
 nnls(A,b) = nonneg_lsq(A,b;alg=:nnls)
