@@ -67,16 +67,16 @@ function pivot_cache(AtA::Matrix{Float64},
 
 		# update primal/dual variables
         x[P] =  pinv(AtA[P,P])*Atb[P]
-        x[~P] = 0.0
+        #x[~P] = 0.0
         y[~P] = AtA[~P,P]*x[P] - Atb[~P]
-        y[~P] = 0.0
+        #y[P] = 0.0
         
         # check infeasibility
         V = (P & (x .< -tol)) | (~P & (y .< -tol))
         nV = sum(V)
     end
 
-    
+    x[~P] = 0.0
     return x
 end
 

@@ -2,15 +2,15 @@ using NonNegLeastSquares
 
 ## compare two algorithms
 function compare(alg1,alg2;var1=:none,var2=:none,m=200,n=200,k=3)
-	println("\nComparing $alg1 , $var1 to :$alg2 , $var2 with A = randn($m,$k) and B = randn($m,$n)")
+	println("\nComparing $alg1:$var1 to $alg2:$var2 with A = randn($m,$k) and B = randn($m,$n)")
 	println("-------------------------------------------------------------------------------------")
 
 	A,B = randn(m,k),randn(m,n)
 
-	print(uppercase(string(alg1)),"_:",var1," → ")
+	print(uppercase(string(alg1)),":",var1," → ")
 	@time X1 = nonneg_lsq(A,B,alg=alg1,variant=var1)
 
-	print(uppercase(string(alg2)),"_:",var2," → ")
+	print(uppercase(string(alg2)),":",var2," → ")
 	@time X2 = nonneg_lsq(A,B,alg=alg2,variant=var2)
 
 	if vecnorm(X1-X2) > 0.1

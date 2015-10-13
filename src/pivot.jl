@@ -1,5 +1,5 @@
 """
-x = pivot_srhs(A, b; ...)
+x = pivot(A, b; ...)
 
 Solves non-negative least-squares problem by block principal pivoting method 
 (Algorithm 1) described in Kim & Park (2011).
@@ -13,17 +13,17 @@ References:
 	active-set-like method and comparisons, SIAM J. Sci. Comput., 33 (2011),
 	pp. 3261–3281.
 """
-function pivot(C::Matrix{Float64},
-                    b::Vector{Float64};
-                    tol::Float64=1e-8,
-                    max_iter=30*size(C,2))
+function pivot(A::Matrix{Float64},
+               b::Vector{Float64};
+               tol::Float64=1e-8,
+               max_iter=30*size(A,2))
 
 
     # dimensions, initialize solution
-    p,q = size(C)
+    p,q = size(A)
 
     x = zeros(q) # primal variables
-    y = -C'*b    # dual variables
+    y = -A'*b    # dual variables
 
     # parameters for swapping
     α = 3
@@ -34,8 +34,8 @@ function pivot(C::Matrix{Float64},
     #    we want X[~P]== 0, Y[~P] >= 0
     P = BitArray(q)
 
-    x[P] =  C[:,P] \ b
-    y[~P] =  C[:,~P]' * (C[:,P]*x[P] - b)
+    x[P] =  A[:,P] \ b
+    y[~P] =  A[:,~P]' * (A[:,P]*x[P] - b)
 
     # identify indices of infeasible variables
     V = (P & (x .< -tol)) | (~P & (y .< -tol))
@@ -66,8 +66,8 @@ function pivot(C::Matrix{Float64},
 		P = (P & ~V) | V & ~P
 
 		# update primal/dual variables
-		x[P] =  C[:,P] \ b
-		y[~P] =  C[:,~P]' * ((C[:,P]*x[P]) - b)
+		x[P] =  A[:,P] \ b
+		y[~P] =  A[:,~P]' * ((A[:,P]*x[P]) - b)
 
         # check infeasibility
         V = (P & (x .< -tol)) | (~P & (y .< -tol))
