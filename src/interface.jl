@@ -41,8 +41,6 @@ function nonneg_lsq(
 		return nnls(A, B; kwargs...)
 	elseif alg == :fnnls
 		return fnnls(A, B; kwargs...)
-	elseif alg == :convex
-		return convex(A, B; verbose=false, kwargs...)
 	elseif alg == :pivot && variant == :cache
 		return pivot_cache(A, B; kwargs...)
 	elseif alg == :pivot && variant == :comb

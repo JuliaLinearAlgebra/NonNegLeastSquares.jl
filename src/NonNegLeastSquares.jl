@@ -7,7 +7,6 @@ export nonneg_lsq
 ## Algorithms
 include("nnls.jl")
 include("fnnls.jl")
-include("convex.jl")
 include("pivot.jl")
 include("pivot_comb.jl")
 include("pivot_cache.jl")

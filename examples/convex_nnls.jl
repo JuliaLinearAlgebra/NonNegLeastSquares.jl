@@ -1,15 +1,19 @@
+## This file provides a wrapper to Convex.jl for solving nonnegative
+## least-squares problems. In general, the active-set methods seem
+## to outperform Convex.jl, but this function can be used to directly
+## compare the two approaches.
+
 using Convex
 using SCS
 using ECOS
 
-
 """
-x = convex(A, b, solver; kwargs...)
+x = convex_nnls(A, b, solver; kwargs...)
 
 Solves the nonnegative least-squares problem using Convex.jl and the solver
 specified by "solver". 
 """
-function convex(
+function convex_nnls(
 	A::Matrix{Float64},
 	B::Matrix{Float64};
 	variant::Symbol = :SCS,

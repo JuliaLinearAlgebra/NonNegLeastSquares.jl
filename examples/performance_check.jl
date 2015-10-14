@@ -26,8 +26,6 @@ compare(:fnnls, :pivot; m=1000, n=1, k=1000);
 
 compare(:fnnls, :pivot; m=1000, n=1000, k=3);
 
-compare(:convex, :pivot; m=50, n=50, k=50);
-
 compare(:pivot, :pivot; var2=:cache, m=100, n=100, k=100);
 
 compare(:pivot, :pivot; var2=:comb, m=100, n=100, k=100);
