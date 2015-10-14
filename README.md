@@ -17,16 +17,12 @@ nonneg_lsq(A,b;alg=:fnnls) # Fast NNLS
 nonneg_lsq(A,b;alg=:pivot) # Pivot Method
 nonneg_lsq(A,b;alg=:pivot,variant=:cache) # Pivot Method (cache pseudoinverse up front)
 nonneg_lsq(A,b;alg=:pivot,variant=:comb) # Pivot Method with combinatorial least-squares
-nonneg_lsq(A,b;alg=:convex,solver=:SCS) # using Convex.jl with SCSSolver
-nonneg_lsq(A,b;alg=:convex,solver=:SCS,verbose=true) # prints SCS solver progress
-nonneg_lsq(A,b;alg=:convex,solver=:ECOS) # using Convex.jl with ECOSSolver
 ```
 
 Default behaviors:
 
 ```julia
 nonneg_lsq(A,b) # pivot method
-nonneg_lsq(A,b;alg=:convex) # uses SCSSolver
 ```
 
 ***References***
@@ -36,8 +32,8 @@ nonneg_lsq(A,b;alg=:convex) # uses SCSSolver
      * Bro R, De Jong S. [A fast non-negativitity-constrained least squares algorithm](https://dx.doi.org/10.1002%2F%28SICI%291099-128X%28199709%2F10%2911%3A5%3C393%3A%3AAID-CEM483%3E3.0.CO%3B2-L). Journal of Chemometrics. 11, 393–401 (1997)
 * **Pivot Method**:
      * Kim J, Park H. [Fast nonnegative matrix factorization: an active-set-like method and comparisons](http://www.cc.gatech.edu/~hpark/papers/SISC_082117RR_Kim_Park.pdf). SIAM Journal on Scientific Computing 33.6 (2011): 3261-3281.
-* [**Convex.jl**](https://github.com/JuliaOpt/Convex.jl)
-     * Udell et al. [Convex Optimization in Julia](https://web.stanford.edu/~boyd/papers/pdf/convexjl.pdf). SC14 Workshop on High Performance Technical Computing in Dynamic Languages. (2014)
+
+Note that there are other ways of solving nonnegative least-squares problems in Julia. For example, see the [**Convex.jl**](https://github.com/JuliaOpt/Convex.jl) package; check out the `convex_nnls` function available in the `examples/` directory. However, the active set methods implemented here appear to be faster in many cases.
 
 ### Installation:
 
@@ -46,7 +42,7 @@ Pkg.clone("https://github.com/ahwillia/NonNegLeastSquares.jl.git")
 
 Pkg.test("NonNegLeastSquares")
 ```
-
+c
 ### Simple Example:
 
 ```julia
