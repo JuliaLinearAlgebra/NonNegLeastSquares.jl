@@ -34,4 +34,6 @@ compare(:pivot, :pivot; var2=:comb, m=100, n=100, k=100);
 
 compare(:pivot, :pivot; var1=:cache, var2=:comb, m=100, n=100, k=100);
 
+compare(:pivot, :pivot; var1=:none, var2=:comb, m=5000, n=5000, k=3);
 
+compare(:pivot, :pivot; var1=:cache, var2=:comb, m=10000, n=10000, k=10);
