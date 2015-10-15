@@ -1,6 +1,6 @@
 language: julia
 julia:
-  - release
+  - 0.4
   - nightly
 
 addons:
