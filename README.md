@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/ahwillia/NonNegLeastSquares.jl.svg)](https://travis-ci.org/ahwillia/NonNegLeastSquares.jl?branch=master)
+
 # NonNegLeastSquares.jl
 Some nonnegative least squares solvers in Julia
 
@@ -33,7 +35,7 @@ nonneg_lsq(A,b) # pivot method
 * **Pivot Method**:
      * Kim J, Park H. [Fast nonnegative matrix factorization: an active-set-like method and comparisons](http://www.cc.gatech.edu/~hpark/papers/SISC_082117RR_Kim_Park.pdf). SIAM Journal on Scientific Computing 33.6 (2011): 3261-3281.
 
-Note that there are other ways of solving nonnegative least-squares problems in Julia. For example, see the [**Convex.jl**](https://github.com/JuliaOpt/Convex.jl) package; check out the `convex_nnls` function available in the `examples/` directory. However, the active set methods implemented here appear to be faster in many cases.
+Note that there are other ways of solving nonnegative least-squares problems in Julia. For example, see the [**Convex.jl**](https://github.com/JuliaOpt/Convex.jl) package; check out the `convex_nnls` function available in the `examples/` directory. Also check out [the nnls solver in **Optim.jl**](https://github.com/JuliaOpt/Optim.jl#nonnegative-least-squares). The active set methods implemented here appear to be faster in many cases.
 
 ### Installation:
 
@@ -42,7 +44,7 @@ Pkg.clone("https://github.com/ahwillia/NonNegLeastSquares.jl.git")
 
 Pkg.test("NonNegLeastSquares")
 ```
-c
+
 ### Simple Example:
 
 ```julia
