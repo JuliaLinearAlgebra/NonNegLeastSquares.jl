@@ -5,3 +5,7 @@ julia:
   - 0.3
   - 0.3.10
 
+addons:
+  apt:
+    packages:
+      - python-scipy
