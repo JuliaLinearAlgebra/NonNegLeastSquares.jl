@@ -40,8 +40,7 @@ Note that there are other ways of solving nonnegative least-squares problems in 
 ### Installation:
 
 ```julia
-Pkg.clone("https://github.com/ahwillia/NonNegLeastSquares.jl.git")
-
+Pkg.add("NonNegLeastSquares")
 Pkg.test("NonNegLeastSquares")
 ```
 
@@ -85,6 +84,6 @@ PIVOT:comb →   0.096450 seconds (586.76 k allocations: 23.569 MB, 3.01% gc tim
 
 ### Algorithims That Need Implementing:
 
-Pull requests are more than welcome, whether it is improving (fixing?) algorithms that have already been implemented, or implementing new ones.
+Pull requests are more than welcome, whether it is improving existing algorithms, or implementing new ones.
 
 * ftp://net9.cs.utexas.edu/pub/techreports/tr06-54.pdf
