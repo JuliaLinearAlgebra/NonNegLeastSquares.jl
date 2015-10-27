@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/ahwillia/NonNegLeastSquares.jl.svg)](https://travis-ci.org/ahwillia/NonNegLeastSquares.jl?branch=master)
+
 # NonNegLeastSquares.jl
 Some nonnegative least squares solvers in Julia
 
@@ -17,16 +19,12 @@ nonneg_lsq(A,b;alg=:fnnls) # Fast NNLS
 nonneg_lsq(A,b;alg=:pivot) # Pivot Method
 nonneg_lsq(A,b;alg=:pivot,variant=:cache) # Pivot Method (cache pseudoinverse up front)
 nonneg_lsq(A,b;alg=:pivot,variant=:comb) # Pivot Method with combinatorial least-squares
-nonneg_lsq(A,b;alg=:convex,solver=:SCS) # using Convex.jl with SCSSolver
-nonneg_lsq(A,b;alg=:convex,solver=:SCS,verbose=true) # prints SCS solver progress
-nonneg_lsq(A,b;alg=:convex,solver=:ECOS) # using Convex.jl with ECOSSolver
 ```
 
 Default behaviors:
 
 ```julia
 nonneg_lsq(A,b) # pivot method
-nonneg_lsq(A,b;alg=:convex) # uses SCSSolver
 ```
 
 ***References***
@@ -36,14 +34,13 @@ nonneg_lsq(A,b;alg=:convex) # uses SCSSolver
      * Bro R, De Jong S. [A fast non-negativitity-constrained least squares algorithm](https://dx.doi.org/10.1002%2F%28SICI%291099-128X%28199709%2F10%2911%3A5%3C393%3A%3AAID-CEM483%3E3.0.CO%3B2-L). Journal of Chemometrics. 11, 393–401 (1997)
 * **Pivot Method**:
      * Kim J, Park H. [Fast nonnegative matrix factorization: an active-set-like method and comparisons](http://www.cc.gatech.edu/~hpark/papers/SISC_082117RR_Kim_Park.pdf). SIAM Journal on Scientific Computing 33.6 (2011): 3261-3281.
-* [**Convex.jl**](https://github.com/JuliaOpt/Convex.jl)
-     * Udell et al. [Convex Optimization in Julia](https://web.stanford.edu/~boyd/papers/pdf/convexjl.pdf). SC14 Workshop on High Performance Technical Computing in Dynamic Languages. (2014)
+
+Note that there are other ways of solving nonnegative least-squares problems in Julia. For example, see the [**Convex.jl**](https://github.com/JuliaOpt/Convex.jl) package; check out the `convex_nnls` function available in the `examples/` directory. Also check out [the nnls solver in **Optim.jl**](https://github.com/JuliaOpt/Optim.jl#nonnegative-least-squares). The active set methods implemented here appear to be faster in many cases.
 
 ### Installation:
 
 ```julia
-Pkg.clone("https://github.com/ahwillia/NonNegLeastSquares.jl.git")
-
+Pkg.add("NonNegLeastSquares")
 Pkg.test("NonNegLeastSquares")
 ```
 
@@ -87,6 +84,6 @@ PIVOT:comb →   0.096450 seconds (586.76 k allocations: 23.569 MB, 3.01% gc tim
 
 ### Algorithims That Need Implementing:
 
-Pull requests are more than welcome, whether it is improving (fixing?) algorithms that have already been implemented, or implementing new ones.
+Pull requests are more than welcome, whether it is improving existing algorithms, or implementing new ones.
 
 * ftp://net9.cs.utexas.edu/pub/techreports/tr06-54.pdf

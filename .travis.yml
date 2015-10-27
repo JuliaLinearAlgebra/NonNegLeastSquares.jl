@@ -1,0 +1,9 @@
+language: julia
+julia:
+  - 0.4
+  - nightly
+
+addons:
+  apt:
+    packages:
+      - python-scipy
