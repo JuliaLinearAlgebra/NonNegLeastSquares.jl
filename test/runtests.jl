@@ -40,7 +40,8 @@ fnnls(A,b) = nonneg_lsq(A,b;alg=:fnnls)
 pivot(A,b) = nonneg_lsq(A,b;alg=:pivot)
 pivot_comb(A,b) = nonneg_lsq(A,b;alg=:pivot,variant=:comb)
 pivot_cache(A,b) = nonneg_lsq(A,b;alg=:pivot,variant=:cache)
+admm(A,b) = nonneg_lsq(A,b;alg=:admm)
 
-for func in [nnls,fnnls,pivot,pivot_comb,pivot_cache]
+for func in [nnls,fnnls,pivot,pivot_comb,pivot_cache,admm]
 	test_algorithm(func)
 end
