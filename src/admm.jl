@@ -1,5 +1,3 @@
-using ArrayViews
-
 """
 x = admm(A, B; ...)
 
@@ -7,8 +5,8 @@ Solves non-negative least-squares problem by the Alternating Direction Method
 of Multipliers (ADMM).
 
 Optional arguments:
-    tol: tolerance for nonnegativity constraints
-    max_iter: maximum number of iterations
+    ρ: penalty parameter (set heuristically by default)
+    ε: tolerance for stopping (small number times sqrt[m*n] by default)
 
 References:
     S. Boyd, N. Parikh, E. Chu, B. Peleato, and J. Eckstein (2011). Distributed
@@ -19,10 +17,9 @@ References:
 """
 function admm(A::Matrix{Float64},
 	          B::Matrix{Float64};
-	          ρ=vecnorm(A)^2/size(A,2),
+	          ρ=max(0.1,vecnorm(A)^2/size(A,2)),
+	          ε=sqrt(size(A,2)*size(B,2))*1e-15,
 	          kwargs...)
-
-	println(ρ)
 
 	# Dimensions
 	m,k = size(A)
@@ -30,11 +27,7 @@ function admm(A::Matrix{Float64},
 
 	# Cache matrices
 	AtB = A'*B 
-	AtAρ = A'*A + ρ*eye(k)
-	#AtAρ = A'*A # A'*A + eye(k)*ρ
-	#for i = 1:k
-	#	AtAρ[i,i] += ρ
-	#end
+	AtAρ = A'*A + eye(k)*ρ
 
 	# Cache cholesky factorization
 	L = cholfact(AtAρ)
@@ -42,27 +35,18 @@ function admm(A::Matrix{Float64},
 	# Matrix storing the solutions
 	X = zeros(k,n)
 
-	for i = 1:n
-		# Select column of B to solve
-		Atb = view(AtB,:,i)
-		x,z,u = zeros(k),zeros(k),zeros(k)
-		
-		x = L \ (Atb+ρ*(z-u))
-		z = max(0,x+u)
-		u = u+x-z
-		
-		# Solve
-		#while (sum(abs(z-x))/k) > 1e12
-		for j = 1:1000
-			x = L \ (Atb+ρ*(z-u))
-			z = max(0,x+u)
-			u = u+x-z
-		end
-
-		# z ≈ x is the solution to A*x = B[:,i]
-		X[:,i] = x
-	end
+	# Initialize variables	
+	Z,U = zeros(k,n),zeros(k,n)
+	X = L \ (AtB+ρ*(Z-U))
 	
-	return X
+	# Solve
+	while vecnorm(X-Z) > ε
+		Z = max(0,X+U)
+		U = U+X-Z
+		X = L \ (AtB+ρ*(Z-U))
+	end
+
+	# Z ≈ X, return Z because nonnegativity is strictly enforced
+	return Z
 end
 
