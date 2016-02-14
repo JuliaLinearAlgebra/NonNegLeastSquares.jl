@@ -86,12 +86,8 @@ function pivot(A::Matrix{Float64},
 
     n = size(A,2)
     k = size(B,2)
-
-    # cache constant terms in pseudoinverse
-    #AtA = A'*A
-    #AtB = A'*B
     
-    # compute result for each row
+    # compute result for each column
     X = zeros(n,k)
     for i = 1:k
         X[:,i] = pivot(A, B[:,i]; kwargs...)
