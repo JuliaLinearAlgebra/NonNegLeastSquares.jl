@@ -41,7 +41,7 @@ function fnnls(AtA::Matrix{Float64},
         P[i] = true
 
         # Solve least-squares problem, with zeros for columns/elements not in P
-        s[P] = inv(AtA[P,P])*Atb[P]
+        s[P] = AtA[P,P] \ Atb[P]
         s[~P] = 0.0 # zero out elements not in P
 
         # Inner loop: deal with negative elements of s
@@ -65,7 +65,7 @@ function fnnls(AtA::Matrix{Float64},
             end
 
             # Solve least-squares problem again, zeroing nonpositive columns
-            s[P] = inv(AtA[P,P])*Atb[P]
+            s[P] = AtA[P,P] \ Atb[P]
             s[~P] = 0.0 # zero out elements not in P
         end
 
