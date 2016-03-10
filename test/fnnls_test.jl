@@ -4,7 +4,7 @@ using PyCall
 
 # wrapper functions for convienence
 nnls(A,b) = nonneg_lsq(A,b;alg=:nnls)
-fnnls(A,b) = nonneg_lsq(A,b;alg=:fnnls)
+fnnls(A,b;Gram=false) = nonneg_lsq(A,b;alg=:fnnls,Gram=Gram)
 
 # Solve A*x = b for x, subject to x >=0 
 A = [ 0.53879488  0.65816267 
@@ -28,6 +28,7 @@ A2 = [ -0.24  -0.82   1.35   0.36   0.35
 b2 = [-1.6,  0.19,  0.17,  0.31, -1.27]
 x2 = [2.2010416, 1.19009924, 0.0, 1.55001345, 0.0]
 @test norm(fnnls(A2,b2)-x2) < 1e-5
+@test norm(fnnls(A2'*A2,A2'*b2;Gram=true)-x2) < 1e-5
 
 ## Test a bunch of random cases against python
 @pyimport scipy.optimize as pyopt
@@ -38,6 +39,7 @@ for i = 1:10
 	b3 = randn(m)
 	x3,resid = pyopt.nnls(A3,b3)
 	@test norm(fnnls(A3,b3)-x3) < 1e-5
+	@test norm(fnnls(A3'*A3,A3'*b3;Gram=true)-x3) < 1e-5
 end
 
 ## Test a bunch of random cases against nnls
@@ -47,4 +49,5 @@ for i = 1:10
   b4 = randn(m)
   x4 = nnls(A4,b4)
   @test norm(fnnls(A4,b4)-x4) < 1e-5
+  @test norm(fnnls(A4'*A4,A4'*b4;Gram=true)-x4) < 1e-5
 end

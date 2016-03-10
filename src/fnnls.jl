@@ -78,14 +78,22 @@ end
 
 function fnnls(A::Matrix{Float64},
                B::Matrix{Float64};
+							 Gram::Bool = false,
                kwargs...)
 
     n = size(A,2)
     k = size(B,2)
 
-    # cache matrix computations
-    AtA = A'*A
-    AtB = A'*B
+		if Gram
+			# A,B are actually Gram matrices
+			AtA = A
+			AtB = B
+		else
+			# cache matrix computations
+			AtA = A'*A
+			AtB = A'*B
+		end
+		
     
     # compute result for each row
     X = zeros(n,k)
