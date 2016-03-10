@@ -11,11 +11,13 @@ Minimize `||A*X - B||` subject to `Xᵢⱼ >= 0`; in this case, `||.||` denotes 
 
 ### Currently Implemented Algorithms:
 
-The code defaults to the "Fast NNLS" algorithm. To specify a different algorithm, use the keyword argument `alg`. Currently implemented algorithms are:
+The code defaults to the "Pivot Method" algorithm. To specify a different algorithm, use the keyword argument `alg`. Currently implemented algorithms are:
 
 ```julia
 nonneg_lsq(A,b;alg=:nnls)  # NNLS
+nonneg_lsq(A'*A,A'*b;alg=:nnls,Gram=true) # NNLS
 nonneg_lsq(A,b;alg=:fnnls) # Fast NNLS
+nonneg_lsq(A'*A,A'*b;alg=:fnnls,Gram=true) # Fast NNLS
 nonneg_lsq(A,b;alg=:pivot) # Pivot Method
 nonneg_lsq(A,b;alg=:pivot,variant=:cache) # Pivot Method (cache pseudoinverse up front)
 nonneg_lsq(A,b;alg=:pivot,variant=:comb) # Pivot Method with combinatorial least-squares

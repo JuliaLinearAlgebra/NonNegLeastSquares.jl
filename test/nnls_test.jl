@@ -1,7 +1,7 @@
 
 
 # wrapper function for convienence
-nnls(A,b) = nonneg_lsq(A,b;alg=:nnls)
+nnls(A,b;Gram=false) = nonneg_lsq(A,b;alg=:nnls,Gram=Gram)
 
 # Solve A*x = b for x, subject to x >=0 
 A = [ 0.53879488  0.65816267 
@@ -14,6 +14,7 @@ b = [0.888,  0.562,  0.255,  0.077]
 # Test that nnls produces the same solution as scipy
 x = [0.15512102, 0.69328985] # approx solution from scipy
 @test norm(nnls(A,b)-x) < 1e-5
+@test norm(nnls(A'*A,A'*b;Gram=true)-x) < 1e-5
 
 
 ## A second test case
@@ -25,6 +26,7 @@ A2 = [ -0.24  -0.82   1.35   0.36   0.35
 b2 = [-1.6,  0.19,  0.17,  0.31, -1.27]
 x2 = [2.2010416, 1.19009924, 0.0, 1.55001345, 0.0]
 @test norm(nnls(A2,b2)-x2) < 1e-5
+@test norm(nnls(A2'*A2,A2'*b2;Gram=true)-x2) < 1e-5
 
 ## Test a bunch of random cases
 @pyimport scipy.optimize as pyopt
@@ -35,4 +37,5 @@ for i = 1:10
 	b3 = randn(m)
 	x3,resid = pyopt.nnls(A3,b3)
 	@test norm(nnls(A3,b3)-x3) < 1e-5
+	@test norm(nnls(A3'*A3,A3'*b3;Gram=true)-x3) < 1e-5
 end

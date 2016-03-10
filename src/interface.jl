@@ -1,5 +1,6 @@
 """
 **x = nonneg_lsq(A, B; ...)**
+**x = nonneg_lsq(A'*A, A'*B; Gram=true,...)**
 
 Computes the (k-by-n) matrix X with that minimizes vecnorm(A*X - B) subject to
 X >= 0, where A is an (m-by-k) matrix and B is a (m-by-n) matrix.
@@ -15,6 +16,8 @@ Optional arguments
 
 **variant:** a symbol specifying the variant, if applicable, 
 
+**Gram:** a boolean indicating whether A,B are Gram matrices A'*A,A'*B or data matrices A,B.
+
 **tol:** tolerance for nonnegativity constraints
 
 **max_iter:** maximum number of iterations before function gives up
@@ -25,6 +28,7 @@ function nonneg_lsq(
 	B::Matrix{Float64};
 	alg::Symbol = :pivot,
 	variant::Symbol = :none,
+	Gram::Bool = false,
 	kwargs...
     )
 
@@ -37,10 +41,17 @@ function nonneg_lsq(
 		end
 	end
 
+	if Gram && alg == :nnls
+		# fnnls is nnls using Gram matrices
+		alg = :fnnls
+	elseif Gram && alg != :fnnls
+		error("Using the Gram interface is only allowed for the nnls and fnnls algorithms.")
+	end
+
 	if alg == :nnls
 		return nnls(A, B; kwargs...)
 	elseif alg == :fnnls
-		return fnnls(A, B; kwargs...)
+		return fnnls(A, B; Gram=Gram, kwargs...)
 	elseif alg == :pivot && variant == :cache
 		return pivot_cache(A, B; kwargs...)
 	elseif alg == :pivot && variant == :comb
