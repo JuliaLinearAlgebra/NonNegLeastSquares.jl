@@ -15,19 +15,24 @@ The code defaults to the "Pivot Method" algorithm. To specify a different algori
 
 ```julia
 nonneg_lsq(A,b;alg=:nnls)  # NNLS
-nonneg_lsq(A'*A,A'*b;alg=:nnls,Gram=true) # NNLS
 nonneg_lsq(A,b;alg=:fnnls) # Fast NNLS
-nonneg_lsq(A'*A,A'*b;alg=:fnnls,Gram=true) # Fast NNLS
 nonneg_lsq(A,b;alg=:pivot) # Pivot Method
 nonneg_lsq(A,b;alg=:pivot,variant=:cache) # Pivot Method (cache pseudoinverse up front)
 nonneg_lsq(A,b;alg=:pivot,variant=:comb) # Pivot Method with combinatorial least-squares
 nonneg_lsq(A,b;alg=:admm) # Alternating Direction Method of Multipliers
 ```
 
-Default behaviors:
+Default algorithm:
 
 ```julia
 nonneg_lsq(A,b) # pivot method
+```
+
+The keyword `Gram` specifies whether the the inputs are Gram matrices (as shown in the examples below). This defaults to `false`.
+
+```julia
+nonneg_lsq(A'*A,A'*b;alg=:nnls,Gram=true) # NNLS
+nonneg_lsq(A'*A,A'*b;alg=:fnnls,Gram=true) # Fast NNLS
 ```
 
 ***References***
