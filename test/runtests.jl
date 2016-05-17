@@ -39,9 +39,9 @@ function test_algorithm(fh)
 end
 
 nnls(A,b) = nonneg_lsq(A,b;alg=:nnls)
-nnls_gram(A,b) = nonneg_lsq(A'*A,A'*b;alg=:nnls,Gram=true)
+nnls_gram(A,b) = nonneg_lsq(A'*A,A'*b;alg=:nnls,gram=true)
 fnnls(A,b) = nonneg_lsq(A,b;alg=:fnnls)
-fnnls_gram(A,b) = nonneg_lsq(A'*A,A'*b;alg=:fnnls,Gram=true)
+fnnls_gram(A,b) = nonneg_lsq(A'*A,A'*b;alg=:fnnls,gram=true)
 pivot(A,b) = nonneg_lsq(A,b;alg=:pivot)
 pivot_comb(A,b) = nonneg_lsq(A,b;alg=:pivot,variant=:comb)
 pivot_cache(A,b) = nonneg_lsq(A,b;alg=:pivot,variant=:cache)

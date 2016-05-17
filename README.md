@@ -31,8 +31,8 @@ nonneg_lsq(A,b) # pivot method
 The keyword `Gram` specifies whether the the inputs are Gram matrices (as shown in the examples below). This defaults to `false`.
 
 ```julia
-nonneg_lsq(A'*A,A'*b;alg=:nnls,Gram=true) # NNLS
-nonneg_lsq(A'*A,A'*b;alg=:fnnls,Gram=true) # Fast NNLS
+nonneg_lsq(A'*A,A'*b;alg=:nnls,gram=true) # NNLS
+nonneg_lsq(A'*A,A'*b;alg=:fnnls,gram=true) # Fast NNLS
 ```
 
 ***References***
