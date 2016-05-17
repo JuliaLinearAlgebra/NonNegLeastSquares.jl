@@ -43,8 +43,10 @@ function nonneg_lsq(
 
     if gram && alg == :nnls
         alg = :fnnls # fnnls is nnls using Gram matrices
-    elseif gram && alg != :fnnls
-        error("Using the Gram interface is only allowed for the nnls and fnnls algorithms.")
+    if gram && alg == :pivot
+        alg = :pivot_cache # pivot_cache is pivot using Gram matrices
+    elseif gram && !(alg in [:pivot_cache,:fnnls])
+        error("Using the Gram interface is only allowed for the nnls, fnnls, and pivot algorithms.")
     end
 
     if alg == :nnls
@@ -52,7 +54,7 @@ function nonneg_lsq(
     elseif alg == :fnnls
         return fnnls(A, B; gram=gram, kwargs...)
     elseif alg == :pivot && variant == :cache
-        return pivot_cache(A, B; kwargs...)
+        return pivot_cache(A, B; gram=gram, kwargs...)
     elseif alg == :pivot && variant == :comb
         return pivot_comb(A, B; kwargs...)
     elseif alg == :pivot

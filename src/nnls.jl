@@ -15,7 +15,8 @@ References:
 function nnls(A::Matrix{Float64},
               b::Vector{Float64};
               tol::Float64=1e-8,
-              max_iter=30*size(A,2))
+              max_iter=30*size(A,2),
+              kwargs...)
 
     # dimensions, initialize solution
     m,n = size(A)
@@ -82,14 +83,24 @@ end
 
 function nnls(A::Matrix{Float64},
               B::Matrix{Float64};
+              use_parallel = true,
               kwargs...)
 
     m,n = size(A)
     k = size(B,2)
 
-    X = zeros(n,k)
-    for i = 1:k
-        X[:,i] = nnls(A, B[:,i]; kwargs...)
+    if use_parallel && nprocs()>1
+        X = SharedArray(Float64,n,k)
+        @sync @parallel for i = 1:k
+            X[:,i] = nnls(A, B[:,i]; kwargs...)
+        end
+        X = convert(Array,X)
+    else
+        X = Array(Float64,n,k)
+        for i = 1:k
+            X[:,i] = nnls(A, B[:,i]; kwargs...)
+        end
     end
+
     return X
 end

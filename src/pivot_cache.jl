@@ -81,23 +81,40 @@ function pivot_cache(AtA::Matrix{Float64},
 end
 
 
-## if multiple right hand sides are provided, solve each problem sequentially.
+## if multiple right hand sides are provided, solve each problem separately.
 function pivot_cache(A::Matrix{Float64},
-               B::Matrix{Float64};
-               kwargs...)
+                     B::Matrix{Float64};
+                     gram::Bool = false,
+                     use_parallel::Bool = true,
+                     kwargs...)
 
     n = size(A,2)
     k = size(B,2)
 
-    # cache constant terms in pseudoinverse
-    AtA = A'*A
-    AtB = A'*B
-    
-    # compute result for each row
-    X = zeros(n,k)
-    for i = 1:k
-        X[:,i] = pivot_cache(AtA, AtB[:,i]; kwargs...)
+    if gram
+        # A,B are actually Gram matrices
+        AtA = A
+        AtB = B
+    else
+        # cache matrix computations
+        AtA = A'*A
+        AtB = A'*B
     end
+    
+    # compute result for each column
+    if use_parallel && nprocs()>1
+        X = SharedArray(Float64,n,k)
+        @sync @parallel for i = 1:k
+            X[:,i] = pivot_cache(AtA, AtB[:,i]; kwargs...)
+        end
+        X = convert(Array,X)
+    else
+        X = Array(Float64,n,k)
+        for i = 1:k
+            X[:,i] = pivot_cache(AtA, AtB[:,i]; kwargs...)
+        end
+    end
+
     return X
 end
 

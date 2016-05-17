@@ -78,29 +78,35 @@ end
 
 function fnnls(A::Matrix{Float64},
                B::Matrix{Float64};
-							 Gram::Bool = false,
+               gram::Bool = false,
+               use_parallel::Bool = true,
                kwargs...)
 
     n = size(A,2)
     k = size(B,2)
 
-		if Gram
-			# A,B are actually Gram matrices
-			AtA = A
-			AtB = B
-		else
-			# cache matrix computations
-			AtA = A'*A
-			AtB = A'*B
-		end
-		
-    
-    # compute result for each row
-    X = zeros(n,k)
-    for i = 1:k
-        X[:,i] = fnnls(AtA, AtB[:,i]; kwargs...)
+    if gram
+        # A,B are actually Gram matrices
+        AtA = A
+        AtB = B
+    else
+        # cache matrix computations
+        AtA = A'*A
+        AtB = A'*B
     end
+        
+    if use_parallel && nprocs()>1
+        X = SharedArray(Float64,n,k)
+        @sync @parallel for i = 1:k
+            X[:,i] = fnnls(AtA, AtB[:,i]; kwargs...)
+        end
+        X = convert(Array,X)
+    else
+        X = Array(Float64,n,k)
+        for i = 1:k
+            X[:,i] = fnnls(AtA, AtB[:,i]; kwargs...)
+        end
+    end
+
     return X
 end
-
-
