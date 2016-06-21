@@ -13,7 +13,7 @@ References:
     Bro R, De Jong S. A fast non-negativitity-constrained least squares
     algorithm. Journal of Chemometrics. 11, 393–401 (1997)
 """
-function fnnls(AtA::Matrix{Float64},
+function fnnls(AtA::AbstractMatrix{Float64},
                Atb::Vector{Float64};
                tol::Float64=1e-8,
                max_iter=30*size(AtA,2))
@@ -76,8 +76,8 @@ function fnnls(AtA::Matrix{Float64},
     return x
 end
 
-function fnnls(A::Matrix{Float64},
-               B::Matrix{Float64};
+function fnnls(A::AbstractMatrix{Float64},
+               B::AbstractMatrix{Float64};
                gram::Bool = false,
                use_parallel::Bool = true,
                kwargs...)
