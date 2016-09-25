@@ -28,7 +28,7 @@ function cssls!(
 	AtA::Matrix{Float64}, # (n x n) matrix
 	AtB::Matrix{Float64}, # (n x p) matrix
 	X::Matrix{Float64},   # (n x p) matrix
-	P::BitArray{2}
+	P::AbstractArray{Bool}
 	)
 	
 	n,p = size(AtB)

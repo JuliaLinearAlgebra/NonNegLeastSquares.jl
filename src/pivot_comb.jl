@@ -35,15 +35,17 @@ function pivot_comb(A::Matrix{Float64},
     # Store indices for the passive set, P
     #    we want Y[P] == 0, X[P] >= 0
     #    we want X[~P]== 0, Y[~P] >= 0
-    P = BitArray(zeros(q,r))
+    P = zeros(Bool,q,r)
 
     # Update primal and dual variables
     cssls!(AtA,AtB,X,P) # overwrite X[P]
     Y = AtA*X - AtB
 
     # identify infeasible columns of X
+    infeasible_cols = Array(Bool,size(X,2))
+    
     V = (P & (X .< -tol)) | (~P & (Y .< -tol)) # infeasible variables
-    infeasible_cols = any(V, 1) # collapse each column
+    any!(infeasible_cols, V') # collapse each column
 
     # while infeasible
     while any(infeasible_cols)
@@ -81,7 +83,7 @@ function pivot_comb(A::Matrix{Float64},
 
         # identify infeasible columns of X
         V = (P & (X .< -tol)) | (~P & (Y .< -tol)) # infeasible variables
-        infeasible_cols = any(V, 1) # collapse each column
+        any!(infeasible_cols, V') # collapse each column
     end 
 
     X[~P] = 0.0

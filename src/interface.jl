@@ -43,7 +43,7 @@ function nonneg_lsq(
 
     if gram && alg == :nnls
         alg = :fnnls # fnnls is nnls using Gram matrices
-    if gram && alg == :pivot
+    elseif gram && alg == :pivot
         alg = :pivot_cache # pivot_cache is pivot using Gram matrices
     elseif gram && !(alg in [:pivot_cache,:fnnls])
         error("Using the Gram interface is only allowed for the nnls, fnnls, and pivot algorithms.")
