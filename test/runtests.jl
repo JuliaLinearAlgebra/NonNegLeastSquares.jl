@@ -39,11 +39,14 @@ function test_algorithm(fh)
 end
 
 nnls(A,b) = nonneg_lsq(A,b;alg=:nnls)
+nnls_gram(A,b) = nonneg_lsq(A'*A,A'*b;alg=:nnls,gram=true)
 fnnls(A,b) = nonneg_lsq(A,b;alg=:fnnls)
+fnnls_gram(A,b) = nonneg_lsq(A'*A,A'*b;alg=:fnnls,gram=true)
 pivot(A,b) = nonneg_lsq(A,b;alg=:pivot)
 pivot_comb(A,b) = nonneg_lsq(A,b;alg=:pivot,variant=:comb)
 pivot_cache(A,b) = nonneg_lsq(A,b;alg=:pivot,variant=:cache)
+admm(A,b) = nonneg_lsq(A,b;alg=:admm)
 
-for func in [nnls,fnnls,pivot,pivot_comb,pivot_cache]
-	test_algorithm(func)
+for func in [nnls,nnls_gram,fnnls,fnnls_gram,pivot,pivot_comb,pivot_cache,admm]
+ 	test_algorithm(func)
 end

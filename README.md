@@ -11,7 +11,7 @@ Minimize `||A*X - B||` subject to `Xᵢⱼ >= 0`; in this case, `||.||` denotes 
 
 ### Currently Implemented Algorithms:
 
-The code defaults to the "Fast NNLS" algorithm. To specify a different algorithm, use the keyword argument `alg`. Currently implemented algorithms are:
+The code defaults to the "Pivot Method" algorithm. To specify a different algorithm, use the keyword argument `alg`. Currently implemented algorithms are:
 
 ```julia
 nonneg_lsq(A,b;alg=:nnls)  # NNLS
@@ -19,12 +19,20 @@ nonneg_lsq(A,b;alg=:fnnls) # Fast NNLS
 nonneg_lsq(A,b;alg=:pivot) # Pivot Method
 nonneg_lsq(A,b;alg=:pivot,variant=:cache) # Pivot Method (cache pseudoinverse up front)
 nonneg_lsq(A,b;alg=:pivot,variant=:comb) # Pivot Method with combinatorial least-squares
+nonneg_lsq(A,b;alg=:admm) # Alternating Direction Method of Multipliers
 ```
 
-Default behaviors:
+Default algorithm:
 
 ```julia
 nonneg_lsq(A,b) # pivot method
+```
+
+The keyword `Gram` specifies whether the the inputs are Gram matrices (as shown in the examples below). This defaults to `false`.
+
+```julia
+nonneg_lsq(A'*A,A'*b;alg=:nnls,gram=true) # NNLS
+nonneg_lsq(A'*A,A'*b;alg=:fnnls,gram=true) # Fast NNLS
 ```
 
 ***References***
@@ -34,14 +42,15 @@ nonneg_lsq(A,b) # pivot method
      * Bro R, De Jong S. [A fast non-negativitity-constrained least squares algorithm](https://dx.doi.org/10.1002%2F%28SICI%291099-128X%28199709%2F10%2911%3A5%3C393%3A%3AAID-CEM483%3E3.0.CO%3B2-L). Journal of Chemometrics. 11, 393–401 (1997)
 * **Pivot Method**:
      * Kim J, Park H. [Fast nonnegative matrix factorization: an active-set-like method and comparisons](http://www.cc.gatech.edu/~hpark/papers/SISC_082117RR_Kim_Park.pdf). SIAM Journal on Scientific Computing 33.6 (2011): 3261-3281.
+* **ADMM**:
+	 * S. Boyd, N. Parikh, E. Chu, B. Peleato, and J. Eckstein (2011). Distributed Optimization and Statistical Learning via the Alternating Direction Method of Multipliers. Foundations and Trends in Machine Learning.
 
 Note that there are other ways of solving nonnegative least-squares problems in Julia. For example, see the [**Convex.jl**](https://github.com/JuliaOpt/Convex.jl) package; check out the `convex_nnls` function available in the `examples/` directory. Also check out [the nnls solver in **Optim.jl**](https://github.com/JuliaOpt/Optim.jl#nonnegative-least-squares). The active set methods implemented here appear to be faster in many cases.
 
 ### Installation:
 
 ```julia
-Pkg.clone("https://github.com/ahwillia/NonNegLeastSquares.jl.git")
-
+Pkg.add("NonNegLeastSquares")
 Pkg.test("NonNegLeastSquares")
 ```
 
@@ -85,6 +94,7 @@ PIVOT:comb →   0.096450 seconds (586.76 k allocations: 23.569 MB, 3.01% gc tim
 
 ### Algorithims That Need Implementing:
 
-Pull requests are more than welcome, whether it is improving (fixing?) algorithms that have already been implemented, or implementing new ones.
+Pull requests are more than welcome, whether it is improving existing algorithms, or implementing new ones.
 
 * ftp://net9.cs.utexas.edu/pub/techreports/tr06-54.pdf
+* Sra Suvrit Kim Dongmin and Inderjit S. Dhillon. A non-monotonic method for large-scale non-negative least squares. Optimization Methods and Software, 28(5):1012–1039, 2013.
