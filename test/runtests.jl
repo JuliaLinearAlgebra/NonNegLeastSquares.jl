@@ -1,7 +1,7 @@
 using Base.Test
 using NonNegLeastSquares
 using PyCall
-@pyimport scipy.optimize as pyopt
+const pyopt = pyimport_conda("scipy.optimize", "scipy")
 
 function test_algorithm(fh)
 	# Solve A*x = b for x, subject to x >=0 
