@@ -41,7 +41,7 @@ function admm(A::Matrix{Float64},
 	
 	# Solve
 	while vecnorm(X-Z) > ε
-		Z = max(0,X+U)
+		Z = max.(0,X+U)
 		U = U+X-Z
 		X = L \ (AtB+ρ*(Z-U))
 	end

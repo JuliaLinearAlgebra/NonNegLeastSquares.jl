@@ -31,25 +31,25 @@ function fnnls(AtA::Matrix{Float64},
     #   (a) all elements of x are positive (no nonneg constraints activated)
     #   (b) ∂f/∂x = A' * (b - A*x) > 0 for all nonpositive elements of x
     iter = 0
-    while sum(P)<n && any(w[~P].>tol) && iter < max_iter
+    while sum(P)<n && any(w[@__dot__(!P)].>tol) && iter < max_iter
 
         # find i that maximizes w, restricting i to indices not in P
         # Note: the while loop condition guarantees at least one w[~P]>0
-        i = indmax(w .* ~P) 
+        i = indmax(@__dot__(w * !P))
 
         # Move i to P
         P[i] = true
 
         # Solve least-squares problem, with zeros for columns/elements not in P
         s[P] = AtA[P,P] \ Atb[P]
-        s[~P] = 0.0 # zero out elements not in P
+        s[@__dot__(!P)] = 0.0 # zero out elements not in P
 
         # Inner loop: deal with negative elements of s
         while any(s[P].<=tol)
             iter += 1
 
             # find indices in P where s is negative
-            ind = (s.<=tol) & P
+            ind = @__dot__ (s <= tol) & P
 
             # calculate step size, α, to prevent any xᵢ from going negative
             α = minimum(x[ind] ./ (x[ind] - s[ind]))
@@ -66,7 +66,7 @@ function fnnls(AtA::Matrix{Float64},
 
             # Solve least-squares problem again, zeroing nonpositive columns
             s[P] = AtA[P,P] \ Atb[P]
-            s[~P] = 0.0 # zero out elements not in P
+            s[@__dot__(!P)] = 0.0 # zero out elements not in P
         end
 
         # update solution
@@ -102,7 +102,7 @@ function fnnls(A::Matrix{Float64},
         end
         X = convert(Array,X)
     else
-        X = Array(Float64,n,k)
+        X = Array{Float64}(n,k)
         for i = 1:k
             X[:,i] = fnnls(AtA, AtB[:,i]; kwargs...)
         end

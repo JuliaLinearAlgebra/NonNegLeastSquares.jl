@@ -2,6 +2,8 @@ isdefined(Base, :__precompile__) && __precompile__()
 
 module NonNegLeastSquares
 
+using Compat
+
 export nonneg_lsq
 
 ## Algorithms

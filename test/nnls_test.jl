@@ -1,7 +1,9 @@
+module NnlsTest
+
 using Base.Test
-using NonNegLeastSquares.NNLS
 using PyCall
 const pyopt = pyimport_conda("scipy.optimize", "scipy")
+using NonNegLeastSquares.NNLS
 
 macro wrappedallocs(expr)
     argnames = [gensym() for a in expr.args]
@@ -102,6 +104,8 @@ end
         b = randn(m)
         x1 = nnls(A, b)
         x2, residual2 = pyopt[:nnls](A, b)
-        @test vec(x1) == x2
+        @test x1 == x2
     end
+end
+
 end
