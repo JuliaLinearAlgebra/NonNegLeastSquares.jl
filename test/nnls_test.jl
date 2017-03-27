@@ -41,7 +41,7 @@ end
         b = randn()
         c, s, sig = NNLS.orthogonal_rotmat(a, b)
         @test [c s; -s c] * [a, b] ≈ [sig, 0]
-        @test @wrappedallocs(NNLS.orthogonal_rotmat(a, b)) == 0
+        # @test @wrappedallocs(NNLS.orthogonal_rotmat(a, b)) == 0
     end
 end
 
