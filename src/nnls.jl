@@ -192,6 +192,9 @@ end
 Views in Julia still allocate some memory (since they need to keep
 a reference to the original array). This type allocates no memory
 and does no bounds checking. Use it with caution. 
+
+From https://github.com/mlubin/ReverseDiffSparse.jl/commit/8e3ade867581aad6ade7c898ada2ed58e0ad42bb
+via https://github.com/tkoolen/RigidBodyDynamics.jl/blob/480214110a3a09a132aef6cf4b84889725eba7e4/src/util.jl#L26
 """
 immutable UnsafeVectorView{T} <: AbstractVector{T}
     offset::Int
