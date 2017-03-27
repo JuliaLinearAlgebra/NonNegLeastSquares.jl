@@ -47,9 +47,13 @@ pivot_comb(A,b) = nonneg_lsq(A,b;alg=:pivot,variant=:comb)
 pivot_cache(A,b) = nonneg_lsq(A,b;alg=:pivot,variant=:cache)
 admm(A,b) = nonneg_lsq(A,b;alg=:admm)
 
+# Fix random number seed to try to avoid
+# https://github.com/ahwillia/NonNegLeastSquares.jl/issues/4
+srand(1)
 for func in [nnls,nnls_gram,fnnls,fnnls_gram,pivot,pivot_comb,pivot_cache,admm]
 	@show func
  	test_algorithm(func)
+ 	println("done")
 end
 
 include("nnls_test.jl")
