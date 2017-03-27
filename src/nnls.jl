@@ -63,11 +63,6 @@ function apply_householder!{T}(u::AbstractVector{T}, up::T, c::AbstractVector{T}
             return
         end
         b = 1 / b
-        # i2 = 1 - m + lpivot - 1
-        # incr = 1
-        # i2 = lpivot
-        # i3 = lpivot + 1
-        # i4 = lpivot + 1
 
         sm = c[1] * up
         for i in 2:m
