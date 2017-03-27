@@ -6,6 +6,7 @@ export nonneg_lsq
 
 ## Algorithms
 include("nnls.jl")
+using .NNLS: nnls
 include("fnnls.jl")
 include("pivot.jl")
 include("pivot_comb.jl")

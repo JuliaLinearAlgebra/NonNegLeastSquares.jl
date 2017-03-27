@@ -29,7 +29,7 @@ function test_algorithm(fh)
 		m,n = rand(1:10),rand(1:10)
 		A3 = randn(m,n)
 		b3 = randn(m)
-		x3,resid = pyopt.nnls(A3,b3)
+		x3,resid = pyopt[:nnls](A3,b3)
 		if resid > 1e-5
 	        @test norm(fh(A3,b3)-x3) < 1e-5
 	    else
@@ -50,3 +50,5 @@ admm(A,b) = nonneg_lsq(A,b;alg=:admm)
 for func in [nnls,nnls_gram,fnnls,fnnls_gram,pivot,pivot_comb,pivot_cache,admm]
  	test_algorithm(func)
 end
+
+include("nnls_test.jl")
