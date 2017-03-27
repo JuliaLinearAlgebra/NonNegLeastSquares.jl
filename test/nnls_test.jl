@@ -30,11 +30,13 @@ end
         up1 = NNLS.construct_householder!(u1, 0.0)
         NNLS.apply_householder!(u1, up1, c1)
 
-        # u2 = copy(u)
-        # c2 = copy(c)
-        # @test @wrappedallocs(NNLS.construct_householder!(u2, 0.0)) == 0
-        # up2 = up1
-        # @test @wrappedallocs(NNLS.apply_householder!(u2, up2, c2)) == 0
+        @static if VERSION >= v"0.6-"
+            u2 = copy(u)
+            c2 = copy(c)
+            @test @wrappedallocs(NNLS.construct_householder!(u2, 0.0)) == 0
+            up2 = up1
+            @test @wrappedallocs(NNLS.apply_householder!(u2, up2, c2)) == 0
+        end
     end
 end
 
@@ -45,19 +47,23 @@ end
         b = randn()
         c, s, sig = NNLS.orthogonal_rotmat(a, b)
         @test [c s; -s c] * [a, b] ≈ [sig, 0]
-        # @test @wrappedallocs(NNLS.orthogonal_rotmat(a, b)) == 0
+        @static if VERSION >= v"0.6-"
+            @test @wrappedallocs(NNLS.orthogonal_rotmat(a, b)) == 0
+        end
     end
 end
 
-@testset "nnls allocations" begin
-    srand(101)
-    for i in 1:50
-        m = rand(20:100)
-        n = rand(20:100)
-        A = randn(m, n)
-        b = randn(m)
-        work = NNLSWorkspace(A, b)
-        @test @wrappedallocs(nnls!(work)) == 0
+@static if VERSION >= v"0.6-"
+    @testset "nnls allocations" begin
+        srand(101)
+        for i in 1:50
+            m = rand(20:100)
+            n = rand(20:100)
+            A = randn(m, n)
+            b = randn(m)
+            work = NNLSWorkspace(A, b)
+            @test @wrappedallocs(nnls!(work)) == 0
+        end
     end
 end
 
@@ -70,7 +76,11 @@ end
     for i in 1:100
         A = randn(m, n)
         b = randn(m)
-        @test @wrappedallocs(nnls!(work, A, b)) == 0
+        @static if VERSION >= v"0.6-"
+            @test @wrappedallocs(nnls!(work, A, b)) == 0
+        else
+            nnls!(work, A, b)
+        end
         @test work.x == pyopt[:nnls](A, b)[1]
     end
 
@@ -84,19 +94,21 @@ end
     end
 end
 
-@testset "non-Int Integer workspace" begin
-    m = 10
-    n = 20
-    A = randn(m, n)
-    b = randn(m)
-    work = NNLSWorkspace(A, b, Int32)
-    # Compile
-    nnls!(work)
+@static if VERSION >= v"0.6-"
+    @testset "non-Int Integer workspace" begin
+        m = 10
+        n = 20
+        A = randn(m, n)
+        b = randn(m)
+        work = NNLSWorkspace(A, b, Int32)
+        # Compile
+        nnls!(work)
 
-    A = randn(m, n)
-    b = randn(m)
-    work = NNLSWorkspace(A, b, Int32)
-    @test @wrappedallocs(nnls!(work)) <= 0
+        A = randn(m, n)
+        b = randn(m)
+        work = NNLSWorkspace(A, b, Int32)
+        @test @wrappedallocs(nnls!(work)) == 0
+    end
 end
 
 @testset "nnls vs scipy" begin
