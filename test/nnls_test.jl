@@ -5,6 +5,10 @@ using PyCall
 const pyopt = pyimport_conda("scipy.optimize", "scipy")
 using NonNegLeastSquares.NNLS
 
+"""
+Measure memory allocation within a function to avoid issues
+with global variables.
+"""
 macro wrappedallocs(expr)
     argnames = [gensym() for a in expr.args]
     quote
