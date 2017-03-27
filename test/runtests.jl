@@ -48,6 +48,7 @@ pivot_cache(A,b) = nonneg_lsq(A,b;alg=:pivot,variant=:cache)
 admm(A,b) = nonneg_lsq(A,b;alg=:admm)
 
 for func in [nnls,nnls_gram,fnnls,fnnls_gram,pivot,pivot_comb,pivot_cache,admm]
+	@show func
  	test_algorithm(func)
 end
 
