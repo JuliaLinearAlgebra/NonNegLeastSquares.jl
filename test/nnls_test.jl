@@ -5,6 +5,10 @@ using PyCall
 const pyopt = pyimport_conda("scipy.optimize", "scipy")
 using NonNegLeastSquares.NNLS
 
+# Allocation measurement doesn't work reliably on Julia v0.5 when
+# code coverage checking is enabled.
+const test_allocs = VERSION >= v"0.6-" || Base.JLOptions().code_coverage == 0
+
 """
 Measure memory allocation within a function to avoid issues
 with global variables.
@@ -19,18 +23,31 @@ macro wrappedallocs(expr)
     end
 end
 
+@testset "bigfloat" begin
+    srand(5)
+    for i in 1:100
+        m = rand(1:10)
+        n = rand(1:10)
+        A = randn(m, n)
+        b = randn(m)
+        x1 = nnls(A, b)
+        x2 = nnls(BigFloat.(A), BigFloat.(b))
+        @test x1 ≈ x2
+    end
+end
+
 @testset "apply_householder!" begin
     srand(2)
     for i in 1:10
         u = randn(rand(3:10))
         c = randn(length(u))
-        
+
         u1 = copy(u)
         c1 = copy(c)
         up1 = NNLS.construct_householder!(u1, 0.0)
         NNLS.apply_householder!(u1, up1, c1)
 
-        @static if VERSION >= v"0.6-"
+        if test_allocs
             u2 = copy(u)
             c2 = copy(c)
             @test @wrappedallocs(NNLS.construct_householder!(u2, 0.0)) == 0
@@ -47,13 +64,13 @@ end
         b = randn()
         c, s, sig = NNLS.orthogonal_rotmat(a, b)
         @test [c s; -s c] * [a, b] ≈ [sig, 0]
-        @static if VERSION >= v"0.6-"
+        if test_allocs
             @test @wrappedallocs(NNLS.orthogonal_rotmat(a, b)) == 0
         end
     end
 end
 
-@static if VERSION >= v"0.6-"
+if test_allocs
     @testset "nnls allocations" begin
         srand(101)
         for i in 1:50
@@ -76,7 +93,7 @@ end
     for i in 1:100
         A = randn(m, n)
         b = randn(m)
-        @static if VERSION >= v"0.6-"
+        if test_allocs
             @test @wrappedallocs(nnls!(work, A, b)) == 0
         else
             nnls!(work, A, b)
@@ -94,7 +111,7 @@ end
     end
 end
 
-@static if VERSION >= v"0.6-"
+if test_allocs
     @testset "non-Int Integer workspace" begin
         m = 10
         n = 20
