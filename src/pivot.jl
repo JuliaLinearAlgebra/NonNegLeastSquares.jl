@@ -35,7 +35,7 @@ function pivot(A::Matrix{Float64},
     P = BitArray(q)
 
     x[P] =  A[:,P] \ b
-    y[@__dot__(!P)] =  A[:,@__dot__(!P)]' * (A[:,P]*x[P] - b)
+    y[(!).(P)] =  A[:,(!).(P)]' * (A[:,P]*x[P] - b)
 
     # identify indices of infeasible variables
     V = @__dot__ (P & (x < -tol)) | (!P & (y < -tol))
@@ -67,14 +67,14 @@ function pivot(A::Matrix{Float64},
 
 		# update primal/dual variables
 		x[P] =  A[:,P] \ b
-		y[@__dot__(!P)] =  A[:,@__dot__(!P)]' * ((A[:,P]*x[P]) - b)
+		y[(!).(P)] =  A[:,(!).(P)]' * ((A[:,P]*x[P]) - b)
 
         # check infeasibility
         @__dot__ V = (P & (x < -tol)) | (!P & (y < -tol))
         nV = sum(V)
     end
 
-    x[@__dot__(!P)] = 0.0
+    x[(!).(P)] = 0.0
     return x
 end
 

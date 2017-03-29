@@ -77,7 +77,7 @@ function pivot_comb(A::Matrix{Float64},
 
         # Update primal and dual variables
         cssls!(AtA,AtB,X,P) # overwrite X[P]
-        X[@__dot__(!P)] = 0.0
+        X[(!).(P)] = 0.0
         Y[:,infeasible_cols] = AtA*X[:,infeasible_cols] - AtB[:,infeasible_cols]
         Y[P] = 0.0 
 
@@ -86,6 +86,6 @@ function pivot_comb(A::Matrix{Float64},
         any!(infeasible_cols, V') # collapse each column
     end 
 
-    X[@__dot__(!P)] = 0.0
+    X[(!).(P)] = 0.0
     return X
 end
