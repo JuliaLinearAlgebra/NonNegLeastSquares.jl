@@ -139,6 +139,19 @@ type NNLSWorkspace{T, I <: Integer}
     rnorm::T
     mode::I
     nsetp::I
+
+    function NNLSWorkspace(m, n)
+        new(Matrix{T}(m, n), # A
+            Vector{T}(m),    # b
+            Vector{T}(n),    # x
+            Vector{T}(n),    # w
+            Vector{T}(m),    # zz
+            Vector{I}(n),    # idx
+            zero(T), # rnorm
+            zero(I), # mode
+            zero(I)  # nsetp
+        )
+    end
 end
 
 function Base.resize!{T}(work::NNLSWorkspace{T}, m::Integer, n::Integer)
@@ -161,24 +174,14 @@ function load!{T}(work::NNLSWorkspace{T}, A::AbstractMatrix{T}, b::AbstractVecto
     work
 end
 
-function NNLSWorkspace{T, I}(m::Integer, n::Integer, eltype::Type{T}=Float64, indextype::Type{I}=Int)
-    NNLSWorkspace{T, I}(
-        Matrix{T}(m, n), # A
-        Vector{T}(m),    # b
-        zeros(T, n),     # x
-        zeros(T, n),     # w
-        zeros(T, m),     # zz
-        zeros(I, n),     # idx
-        zero(T),         # rnorm
-        zero(I),         # mode
-        zero(I),         # nsetp
-    )
-end
+NNLSWorkspace{T, I}(m::Integer, n::Integer,
+                    eltype::Type{T}=Float64, 
+                    indextype::Type{I}=Int) = NNLSWorkspace{T, I}(m, n)
 
 function NNLSWorkspace{T, I}(A::Matrix{T}, b::Vector{T}, indextype::Type{I}=Int)
     m, n = size(A)
     @assert size(b) == (m,)
-    work = NNLSWorkspace(m, n, T, I)
+    work = NNLSWorkspace{T, I}(m, n)
     load!(work, A, b)
     work
 end
