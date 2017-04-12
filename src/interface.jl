@@ -67,4 +67,4 @@ function nonneg_lsq(
 end
 
 # If second input is a vector, convert it to a matrix
-nonneg_lsq(A::Matrix, b::Vector; kwargs...) = nonneg_lsq(A, b[:,:]; kwargs...)
+nonneg_lsq(A::Matrix, b::Vector; kwargs...) = nonneg_lsq(A, b[:]; kwargs...)
