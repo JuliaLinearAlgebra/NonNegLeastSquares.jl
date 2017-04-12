@@ -31,7 +31,7 @@ function nnls(A::Matrix{Float64},
     #   (b) ∂f/∂x = A' * (b - A*x) > 0 for all nonpositive elements of x
     w = A' * (b - A*x)
     iter = 0
-    while sum(P)<n && any(w[.~P].>tol) && iter < max_iter
+    while sum(P)<n && any(w[ .~ P] .> tol) && iter < max_iter
 
         # find i that maximizes w, restricting i to indices not in P
         # Note: the while loop condition guarantees at least one w[~P]>0
