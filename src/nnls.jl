@@ -96,7 +96,7 @@ function nnls(A::Matrix{Float64},
         end
         X = convert(Array,X)
     else
-        X = Array(Float64,n,k)
+        X = Array{Float64}(n,k)
         for i = 1:k
             X[:,i] = nnls(A, B[:,i]; kwargs...)
         end

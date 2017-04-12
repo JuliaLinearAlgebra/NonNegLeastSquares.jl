@@ -42,7 +42,7 @@ function pivot_comb(A::Matrix{Float64},
     Y = AtA*X - AtB
 
     # identify infeasible columns of X
-    infeasible_cols = Array(Bool,size(X,2))
+    infeasible_cols = Array{Bool}(size(X,2))
     
     V = (P & (X .< -tol)) | (~P & (Y .< -tol)) # infeasible variables
     any!(infeasible_cols, V') # collapse each column
