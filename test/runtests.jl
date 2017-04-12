@@ -31,9 +31,9 @@ function test_algorithm(fh)
 		b3 = randn(m)
 		x3,resid = pyopt.nnls(A3,b3)
 		if resid > 1e-5
-	        @test norm(fh(A3,b3)-x3) < 1e-5
+	        @test norm(fh(A3,b3)-x3) ≈ 0 atol = 1e-5
 	    else
-	    	@test norm(A3*fh(A3,b3)-b3) < 1e-5
+	    	@test norm(A3*fh(A3,b3)-b3)  ≈ 0 atol = 1e-5
 	    end
 	end
 end
