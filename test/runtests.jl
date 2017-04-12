@@ -12,7 +12,7 @@ function test_algorithm(fh)
 
 	b = [0.888,  0.562,  0.255,  0.077]
 	x = [0.15512102, 0.69328985] # approx solution from scipy
-	@test norm(fh(A,b)-x) < 1e-5
+	@test norm(fh(A,b)-x) ≈ 0 atol = 1e-5
 
 	## A second test case
 	A2 = [ -0.24  -0.82   1.35   0.36   0.35
@@ -22,7 +22,7 @@ function test_algorithm(fh)
 	        0.48  -2.25   0.38   0.06  -1.29 ]
 	b2 = [-1.6,  0.19,  0.17,  0.31, -1.27]
 	x2 = [2.2010416, 1.19009924, 0.0, 1.55001345, 0.0]
-	@test norm(fh(A2,b2)-x2) < 1e-5
+	@test norm(fh(A2,b2)-x2) ≈ 0 atol = 1e-5
 
 	## Test a bunch of random cases
 	for i = 1:100
