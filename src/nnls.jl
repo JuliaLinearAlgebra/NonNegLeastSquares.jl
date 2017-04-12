@@ -81,8 +81,8 @@ function nnls(A::Matrix{Float64},
     return x
 end
 
-function nnls(A::Matrix{Float64},
-              B::Matrix{Float64};
+function nnls{T <: Float64}(A::Matrix{T},
+              B::Matrix{T};
               use_parallel = true,
               kwargs...)
 
@@ -90,13 +90,13 @@ function nnls(A::Matrix{Float64},
     k = size(B,2)
 
     if use_parallel && nprocs()>1
-        X = SharedArray(Float64,n,k)
+        X = SharedArray(T,n,k)
         @sync @parallel for i = 1:k
             X[:,i] = nnls(A, B[:,i]; kwargs...)
         end
         X = convert(Array,X)
     else
-        X = Array{Float64}(n,k)
+        X = Array{T}(n,k)
         for i = 1:k
             X[:,i] = nnls(A, B[:,i]; kwargs...)
         end
