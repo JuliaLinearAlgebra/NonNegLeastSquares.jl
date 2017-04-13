@@ -34,7 +34,7 @@ function pivot_comb(A::Matrix{Float64},
 
     # Store indices for the passive set, P
     #    we want Y[P] == 0, X[P] >= 0
-    #    we want X[~P]== 0, Y[~P] >= 0
+    #    we want X[.~P]== 0, Y[.~P] >= 0
     P = zeros(Bool,q,r)
 
     # Update primal and dual variables
@@ -42,9 +42,9 @@ function pivot_comb(A::Matrix{Float64},
     Y = AtA*X - AtB
 
     # identify infeasible columns of X
-    infeasible_cols = Array(Bool,size(X,2))
+    infeasible_cols = Array{Bool}(size(X,2))
     
-    V = (P & (X .< -tol)) | (~P & (Y .< -tol)) # infeasible variables
+    V = (P .& (X .< -tol)) .| (.~P .& (Y .< -tol)) # infeasible variables
     any!(infeasible_cols, V') # collapse each column
 
     # while infeasible
@@ -71,21 +71,21 @@ function pivot_comb(A::Matrix{Float64},
         end
         
         # Update passive set
-        #     P & ~V removes infeasible variables from P 
-        #     V & ~P moves infeasible variables to the
-        P = (P & ~V) | (V & ~P)
+        #     P & .~V removes infeasible variables from P 
+        #     V & .~P moves infeasible variables to the
+        P = (P .& .~V) .| (V .& .~P)
 
         # Update primal and dual variables
         cssls!(AtA,AtB,X,P) # overwrite X[P]
-        X[~P] = 0.0
+        X[.~P] = 0.0
         Y[:,infeasible_cols] = AtA*X[:,infeasible_cols] - AtB[:,infeasible_cols]
         Y[P] = 0.0 
 
         # identify infeasible columns of X
-        V = (P & (X .< -tol)) | (~P & (Y .< -tol)) # infeasible variables
+        V = (P .& (X .< -tol)) .| (.~P .& (Y .< -tol)) # infeasible variables
         any!(infeasible_cols, V') # collapse each column
     end 
 
-    X[~P] = 0.0
+    X[.~P] = 0.0
     return X
 end
