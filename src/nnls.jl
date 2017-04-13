@@ -19,11 +19,12 @@ function nnls(A::Matrix{Float64},
               kwargs...)
 
     # dimensions, initialize solution
+    
     m,n = size(A)
     x = zeros(n)
 
     # P is a bool array storing positive elements of x
-    # i.e., x[P] > 0 and x[~P] == 0
+    # i.e., x[P] > 0 and x[.~P] == 0
     P = zeros(Bool,n)
 
     # We have reached an optimum when either:
@@ -31,11 +32,11 @@ function nnls(A::Matrix{Float64},
     #   (b) ∂f/∂x = A' * (b - A*x) > 0 for all nonpositive elements of x
     w = A' * (b - A*x)
     iter = 0
-    while sum(P)<n && any(w[ .~ P] .> tol) && iter < max_iter
+    while sum(P)<n && any(w[.~P].>tol) && iter < max_iter
 
         # find i that maximizes w, restricting i to indices not in P
-        # Note: the while loop condition guarantees at least one w[~P]>0
-        i = indmax(w .* ~P) 
+        # Note: the while loop condition guarantees at least one w[.~P]>0
+        i = indmax(w .* .~P) 
 
         # Move i to P
         P[i] = true
@@ -44,14 +45,14 @@ function nnls(A::Matrix{Float64},
         Ap = zeros(m,n)
         Ap[:,P] = A[:,P]
         s = pinv(Ap)*b
-        s[~P] = 0.0 # zero out elements not in P
+        s[.~P] = 0.0 # zero out elements not in P
 
         # Inner loop: deal with negative elements of s
         while any(s[P].<=tol)
             iter += 1
 
             # find indices in P where s is negative
-            ind = (s.<=tol) & P
+            ind = (s.<=tol) .& P
 
             # calculate step size, α, to prevent any xᵢ from going negative
             α = minimum(x[ind] ./ (x[ind] - s[ind]))
@@ -71,7 +72,7 @@ function nnls(A::Matrix{Float64},
 
             # Solve least-squares problem again, zeroing nonpositive columns
             s = pinv(Ap)*b
-            s[~P] = 0.0 # zero out elements not in P
+            s[.~P] = 0.0 # zero out elements not in P
         end
 
         # update solution
@@ -80,23 +81,23 @@ function nnls(A::Matrix{Float64},
     end
     return x
 end
-
-function nnls{T <: Float64}(A::Matrix{T},
-              B::Matrix{T};
-              use_parallel = true,
+'''
+function nnls(A::Matrix{Float64},
+              B::Matrix{Float64};
+              use_parallel = false,
               kwargs...)
 
     m,n = size(A)
     k = size(B,2)
 
     if use_parallel && nprocs()>1
-        X = SharedArray(T,n,k)
+        X = SharedArray(Float64,n,k)
         @sync @parallel for i = 1:k
             X[:,i] = nnls(A, B[:,i]; kwargs...)
         end
         X = convert(Array,X)
     else
-        X = Array{T}(n,k)
+        X = Array{Float64}(n,k)
         for i = 1:k
             X[:,i] = nnls(A, B[:,i]; kwargs...)
         end
@@ -104,3 +105,4 @@ function nnls{T <: Float64}(A::Matrix{T},
 
     return X
 end
+'''

@@ -26,7 +26,7 @@ Optional arguments
 function nonneg_lsq(
         A::Matrix{Float64},
         B::Matrix{Float64};
-        alg::Symbol = :pivot,
+        alg::Symbol = :nnls,
         variant::Symbol = :none,
         gram::Bool = false,
         kwargs...
@@ -67,4 +67,5 @@ function nonneg_lsq(
 end
 
 # If second input is a vector, convert it to a matrix
-nonneg_lsq(A::Matrix, b::Vector; kwargs...) = nonneg_lsq(A, b[:]; kwargs...)
+nonneg_lsq(A::Matrix, b::Vector; kwargs...) = nonneg_lsq(A, b[:,:]; kwargs...)
+

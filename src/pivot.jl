@@ -31,14 +31,14 @@ function pivot(A::Matrix{Float64},
 
     # Store indices for the passive set, P
     #    we want Y[P] == 0, X[P] >= 0
-    #    we want X[~P]== 0, Y[~P] >= 0
+    #    we want X[.~P]== 0, Y[.~P] >= 0
     P = BitArray(q)
 
     x[P] =  A[:,P] \ b
-    y[~P] =  A[:,~P]' * (A[:,P]*x[P] - b)
+    y[.~P] =  A[:,.~P]' * (A[:,P]*x[P] - b)
 
     # identify indices of infeasible variables
-    V = (P & (x .< -tol)) | (~P & (y .< -tol))
+    V = (P .& (x .< -tol)) .| (.~P .& (y .< -tol))
     nV = sum(V)
 
     # while infeasible (number of infeasible variables > 0)
@@ -61,20 +61,20 @@ function pivot(A::Matrix{Float64},
     	end
 
     	# update passive set
-        #     P & ~V removes infeasible variables from P 
-        #     V & ~P  moves infeasible variables in ~P to P
-		P = (P & ~V) | V & ~P
+        #     P & .~V removes infeasible variables from P 
+        #     V & .~P  moves infeasible variables in .~P to P
+		P = (P .& .~V) .| V .& .~P
 
 		# update primal/dual variables
 		x[P] =  A[:,P] \ b
-		y[~P] =  A[:,~P]' * ((A[:,P]*x[P]) - b)
+		y[.~P] =  A[:,.~P]' * ((A[:,P]*x[P]) - b)
 
         # check infeasibility
-        V = (P & (x .< -tol)) | (~P & (y .< -tol))
+        V = (P .& (x .< -tol)) .| (.~P .& (y .< -tol))
         nV = sum(V)
     end
 
-    x[~P] = 0.0
+    x[.~P] = 0.0
     return x
 end
 
