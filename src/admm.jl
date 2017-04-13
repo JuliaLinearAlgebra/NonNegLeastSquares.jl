@@ -19,6 +19,7 @@ function admm(A::Matrix{Float64},
 	          B::Matrix{Float64};
 	          ρ=max(0.1,vecnorm(A)^2/size(A,2)),
 	          ε=sqrt(size(A,2)*size(B,2))*1e-15,
+		  max_iter=30*size(A,2),
 	          kwargs...)
 
 	# Dimensions
@@ -40,10 +41,11 @@ function admm(A::Matrix{Float64},
 	X = L \ (AtB+ρ*(Z-U))
 	
 	# Solve
-	while vecnorm(X-Z) > ε
+	for i = 1:max_iter
 		Z = max.(0,X+U)
 		U = U+X-Z
 		X = L \ (AtB+ρ*(Z-U))
+		vecnorm(X-Z) < ε && break
 	end
 
 	# Z ≈ X, return Z because nonnegativity is strictly enforced

@@ -48,8 +48,6 @@ nonneg_lsq(A'*A,A'*b;alg=:fnnls,gram=true) # Fast NNLS
 * **ADMM**:
 	 * S. Boyd, N. Parikh, E. Chu, B. Peleato, and J. Eckstein (2011). Distributed Optimization and Statistical Learning via the Alternating Direction Method of Multipliers. Foundations and Trends in Machine Learning.
 
-Note that there are other ways of solving nonnegative least-squares problems in Julia. For example, see the [**Convex.jl**](https://github.com/JuliaOpt/Convex.jl) package; check out the `convex_nnls` function available in the `examples/` directory. Also check out [the nnls solver in **Optim.jl**](https://github.com/JuliaOpt/Optim.jl#nonnegative-least-squares). The active set methods implemented here appear to be faster in many cases.
-
 ### Installation:
 
 ```julia
