@@ -1,39 +1,144 @@
-# wrapper function for convienence
-nnls(A,b;gram=false) = nonneg_lsq(A,b;alg=:nnls,gram=gram)
+module NnlsTest
 
-# Solve A*x = b for x, subject to x >=0 
-A = [ 0.53879488  0.65816267 
-      0.12873446  0.98669198
-      0.24555042  0.00598804
-      0.80491791  0.32793762 ]
+using Base.Test
+using PyCall
+const pyopt = pyimport_conda("scipy.optimize", "scipy")
+using NonNegLeastSquares.NNLS
 
-b = [0.888,  0.562,  0.255,  0.077]
+# Allocation measurement doesn't work reliably on Julia v0.5 when
+# code coverage checking is enabled.
+const test_allocs = VERSION >= v"0.6-" || Base.JLOptions().code_coverage == 0
 
-# Test that nnls produces the same solution as scipy
-x = [0.15512102, 0.69328985] # approx solution from scipy
-@test norm(nnls(A,b)-x) < 1e-5
-@test norm(nnls(A'*A,A'*b;gram=true)-x) < 1e-5
+"""
+Measure memory allocation within a function to avoid issues
+with global variables.
+"""
+macro wrappedallocs(expr)
+    argnames = [gensym() for a in expr.args]
+    quote
+        function g($(argnames...))
+            @allocated $(Expr(expr.head, argnames...))
+        end
+        $(Expr(:call, :g, [esc(a) for a in expr.args]...))
+    end
+end
 
+@testset "bigfloat" begin
+    srand(5)
+    for i in 1:100
+        m = rand(1:10)
+        n = rand(1:10)
+        A = randn(m, n)
+        b = randn(m)
+        x1 = nnls(A, b)
+        x2 = nnls(BigFloat.(A), BigFloat.(b))
+        @test x1 ≈ x2
+    end
+end
 
-## A second test case
-A2 = [ -0.24  -0.82   1.35   0.36   0.35
-       -0.53  -0.20  -0.76   0.98  -0.54
-        0.22   1.25  -1.60  -1.37  -1.94
-       -0.51  -0.56  -0.08   0.96   0.46
-        0.48  -2.25   0.38   0.06  -1.29 ]
-b2 = [-1.6,  0.19,  0.17,  0.31, -1.27]
-x2 = [2.2010416, 1.19009924, 0.0, 1.55001345, 0.0]
-@test norm(nnls(A2,b2)-x2) < 1e-5
-@test norm(nnls(A2'*A2,A2'*b2;gram=true)-x2) < 1e-5
+@testset "apply_householder!" begin
+    srand(2)
+    for i in 1:10
+        u = randn(rand(3:10))
+        c = randn(length(u))
 
-## Test a bunch of random cases
-@pyimport scipy.optimize as pyopt
+        u1 = copy(u)
+        c1 = copy(c)
+        up1 = NNLS.construct_householder!(u1, 0.0)
+        NNLS.apply_householder!(u1, up1, c1)
 
-for i = 1:10
-	m,n = rand(1:10),rand(1:10)
-	A3 = randn(m,n)
-	b3 = randn(m)
-	x3,resid = pyopt.nnls(A3,b3)
-	@test norm(nnls(A3,b3)-x3) < 1e-5
-	@test norm(nnls(A3'*A3,A3'*b3;gram=true)-x3) < 1e-5
+        if test_allocs
+            u2 = copy(u)
+            c2 = copy(c)
+            @test @wrappedallocs(NNLS.construct_householder!(u2, 0.0)) == 0
+            up2 = up1
+            @test @wrappedallocs(NNLS.apply_householder!(u2, up2, c2)) == 0
+        end
+    end
+end
+
+@testset "orthogonal_rotmat" begin
+    srand(3)
+    for i in 1:1000
+        a = randn()
+        b = randn()
+        c, s, sig = NNLS.orthogonal_rotmat(a, b)
+        @test [c s; -s c] * [a, b] ≈ [sig, 0]
+        if test_allocs
+            @test @wrappedallocs(NNLS.orthogonal_rotmat(a, b)) == 0
+        end
+    end
+end
+
+if test_allocs
+    @testset "nnls allocations" begin
+        srand(101)
+        for i in 1:50
+            m = rand(20:100)
+            n = rand(20:100)
+            A = randn(m, n)
+            b = randn(m)
+            work = NNLSWorkspace(A, b)
+            @test @wrappedallocs(nnls!(work)) == 0
+        end
+    end
+end
+
+@testset "nnls workspace reuse" begin
+    srand(200)
+    m = 10
+    n = 20
+    work = NNLSWorkspace(m, n)
+    nnls!(work, randn(m, n), randn(m))
+    for i in 1:100
+        A = randn(m, n)
+        b = randn(m)
+        if test_allocs
+            @test @wrappedallocs(nnls!(work, A, b)) == 0
+        else
+            nnls!(work, A, b)
+        end
+        @test work.x == pyopt[:nnls](A, b)[1]
+    end
+
+    m = 20
+    n = 10
+    for i in 1:100
+        A = randn(m, n)
+        b = randn(m)
+        nnls!(work, A, b)
+        @test work.x == pyopt[:nnls](A, b)[1]
+    end
+end
+
+if test_allocs
+    @testset "non-Int Integer workspace" begin
+        m = 10
+        n = 20
+        A = randn(m, n)
+        b = randn(m)
+        work = NNLSWorkspace(A, b, Int32)
+        # Compile
+        nnls!(work)
+
+        A = randn(m, n)
+        b = randn(m)
+        work = NNLSWorkspace(A, b, Int32)
+        @test @wrappedallocs(nnls!(work)) == 0
+    end
+end
+
+@testset "nnls vs scipy" begin
+    srand(5)
+    for i in 1:5000
+        m = rand(1:60)
+        n = rand(1:60)
+        A = randn(m, n)
+        b = randn(m)
+        x1 = nnls(A, b)
+        x2, residual2 = pyopt[:nnls](A, b)
+        @test x1 == x2
+    end
+end
+
 end

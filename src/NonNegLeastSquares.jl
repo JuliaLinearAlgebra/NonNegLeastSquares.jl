@@ -2,10 +2,13 @@ isdefined(Base, :__precompile__) && __precompile__()
 
 module NonNegLeastSquares
 
+using Compat
+
 export nonneg_lsq
 
 ## Algorithms
 include("nnls.jl")
+using .NNLS: nnls
 include("fnnls.jl")
 include("pivot.jl")
 include("pivot_comb.jl")

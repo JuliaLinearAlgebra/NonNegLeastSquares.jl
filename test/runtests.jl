@@ -1,7 +1,7 @@
 using Base.Test
 using NonNegLeastSquares
 using PyCall
-@pyimport scipy.optimize as pyopt
+const pyopt = pyimport_conda("scipy.optimize", "scipy")
 
 function test_algorithm(fh)
 	# Solve A*x = b for x, subject to x >=0 
@@ -29,7 +29,7 @@ function test_algorithm(fh)
 		m,n = rand(1:10),rand(1:10)
 		A3 = randn(m,n)
 		b3 = randn(m)
-		x3,resid = pyopt.nnls(A3,b3)
+		x3,resid = pyopt[:nnls](A3,b3)
 		if resid > 1e-5
 	        @test norm(fh(A3,b3)-x3) < 1e-5
 	    else
@@ -47,6 +47,13 @@ pivot_comb(A,b) = nonneg_lsq(A,b;alg=:pivot,variant=:comb)
 pivot_cache(A,b) = nonneg_lsq(A,b;alg=:pivot,variant=:cache)
 admm(A,b) = nonneg_lsq(A,b;alg=:admm)
 
+# Fix random number seed to try to avoid
+# https://github.com/ahwillia/NonNegLeastSquares.jl/issues/4
+srand(1)
 for func in [nnls,nnls_gram,fnnls,fnnls_gram,pivot,pivot_comb,pivot_cache,admm]
+	@show func
  	test_algorithm(func)
+ 	println("done")
 end
+
+include("nnls_test.jl")

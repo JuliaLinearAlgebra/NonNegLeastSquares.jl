@@ -42,7 +42,7 @@ function admm(A::Matrix{Float64},
 	
 	# Solve
 	for i = 1:max_iter
-		Z = max(0,X+U)
+		Z = max.(0,X+U)
 		U = U+X-Z
 		X = L \ (AtB+ρ*(Z-U))
 		vecnorm(X-Z) < ε && break

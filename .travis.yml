@@ -3,7 +3,5 @@ julia:
   - 0.5
   - nightly
 
-addons:
-  apt:
-    packages:
-      - python-scipy
+before_install:
+  - export PYTHON=""
