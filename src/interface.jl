@@ -59,8 +59,6 @@ function nonneg_lsq(
         return pivot_comb(A, B; kwargs...)
     elseif alg == :pivot
         return pivot(A, B; kwargs...)
-    elseif alg == :admm
-        return admm(A, B; kwargs...)
     else
         error("Specified algorithm :",alg," not recognized.")
     end

@@ -16,39 +16,38 @@ References:
     http://stanford.edu/~eryu/nnlsqr.html
 """
 function admm(A::Matrix{Float64},
-	          B::Matrix{Float64};
-	          ρ=max(0.1,vecnorm(A)^2/size(A,2)),
-	          ε=sqrt(size(A,2)*size(B,2))*1e-15,
-		  max_iter=100*size(A,2),
-	          kwargs...)
+              B::Matrix{Float64};
+              ρ=max(1.0, vecnorm(A)^2/size(A,2)),
+              ε=sqrt(size(A,2)*size(B,2))*1e-15,
+              max_iter=1000*size(A,2),
+              kwargs...)
 
-	# Dimensions
-	m,k = size(A)
-	n = size(B,2)
+    # Dimensions
+    m,k = size(A)
+    n = size(B,2)
 
-	# Cache matrices
-	AtB = A'*B 
-	AtAρ = A'*A + eye(k)*ρ
+    # Cache matrices
+    AtB = A'*B
 
-	# Cache cholesky factorization
-	L = cholfact(AtAρ)
-	
-	# Matrix storing the solutions
-	X = zeros(k,n)
+    # Cache cholesky factorization
+    L = cholfact(A'*A + ρ*I)
 
-	# Initialize variables	
-	Z,U = zeros(k,n),zeros(k,n)
-	X = L \ (AtB+ρ*(Z-U))
-	
-	# Solve
-	for i = 1:max_iter
-		Z = max(0,X+U)
-		U = U+X-Z
-		X = L \ (AtB+ρ*(Z-U))
-		vecnorm(X-Z) < ε && break
-	end
+    # Matrix storing the solutions
+    X = zeros(k,n)
 
-	# Z ≈ X, return Z because nonnegativity is strictly enforced
-	return Z
+    # Initialize variables  
+    Z,U = zeros(k,n),zeros(k,n)
+    X = L \ (AtB+ρ*(Z-U))
+
+    # Solve
+    err = Inf
+    for i = 1:max_iter
+        Z = max(0,X+U)
+        U = U+X-Z
+        X = L \ (AtB+ρ*(Z-U))
+        vecnorm(X-Z) < ε && break
+    end
+
+    return max(0, X)
 end
 
