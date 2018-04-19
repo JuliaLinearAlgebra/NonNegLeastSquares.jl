@@ -44,7 +44,7 @@ function pivot_comb(A::Matrix{Float64},
     # identify infeasible columns of X
     infeasible_cols = Array{Bool}(size(X,2))
 
-    V = @__dot__ (P & (X < -tol)) | (!P & (Y < -tol)) # infeasible variables
+    V = @. (P & (X < -tol)) | (!P & (Y < -tol)) # infeasible variables
     any!(infeasible_cols, V') # collapse each column
 
     # while infeasible
@@ -53,7 +53,7 @@ function pivot_comb(A::Matrix{Float64},
         # check progress
         for j = 1:r
             nV = sum(V[:,j])
-            
+
             # skip any column with no infeasible variables
             if nV == 0
                 continue
@@ -79,7 +79,7 @@ function pivot_comb(A::Matrix{Float64},
         # Update passive set
         #     P & ~V removes infeasible variables from P
         #     V & ~P moves infeasible variables to the
-        @__dot__ P = (P & !V) | (V & !P)
+        @. P = (P & !V) | (V & !P)
 
         # Update primal and dual variables
         cssls!(AtA,AtB,X,P) # overwrite X[P]
@@ -88,7 +88,7 @@ function pivot_comb(A::Matrix{Float64},
         Y[P] = 0.0
 
         # identify infeasible columns of X
-        @__dot__ V = (P & (X < -tol)) | (!P & (Y < -tol)) # infeasible variables
+        @. V = (P & (X < -tol)) | (!P & (Y < -tol)) # infeasible variables
         any!(infeasible_cols, V') # collapse each column
     end
 
