@@ -34,7 +34,7 @@ function cssls!(
 	n,p = size(AtB)
 
 	# Find unique columns in P
-	U = unique(P,2) 
+	U = unique(P,dims=2) 
 	num_unique = size(U,2)
 
 	# Find indices associates with unique columns in P

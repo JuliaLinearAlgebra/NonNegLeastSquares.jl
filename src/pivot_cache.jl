@@ -32,7 +32,7 @@ function pivot_cache(AtA::Matrix{Float64},
     # Store indices for the passive set, P
     #    we want Y[P] == 0, X[P] >= 0
     #    we want X[~P]== 0, Y[~P] >= 0
-    P = BitArray(q)
+    P = BitArray(undef,q)
 
     x[P] = pinv(AtA[P,P])*Atb[P]
     y[(!).(P)] = AtA[(!).(P),P]*x[P] - Atb[(!).(P)]
@@ -76,7 +76,7 @@ function pivot_cache(AtA::Matrix{Float64},
         nV = sum(V)
     end
 
-    x[(!).(P)] = 0.0
+    x[(!).(P)] .= 0.0
     return x
 end
 
@@ -104,12 +104,12 @@ function pivot_cache(A::Matrix{Float64},
     # compute result for each column
     if use_parallel && nprocs()>1
         X = SharedArray(Float64,n,k)
-        @sync @parallel for i = 1:k
+        @sync @distributed for i = 1:k
             X[:,i] = pivot_cache(AtA, AtB[:,i]; kwargs...)
         end
         X = convert(Array,X)
     else
-        X = Array{Float64}(n,k)
+        X = Array{Float64}(undef,n,k)
         for i = 1:k
             X[:,i] = pivot_cache(AtA, AtB[:,i]; kwargs...)
         end

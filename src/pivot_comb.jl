@@ -42,7 +42,7 @@ function pivot_comb(A::Matrix{Float64},
     Y = AtA*X - AtB
 
     # identify infeasible columns of X
-    infeasible_cols = Array{Bool}(size(X,2))
+    infeasible_cols = Array{Bool}(undef,size(X,2))
 
     V = @. (P & (X < -tol)) | (!P & (Y < -tol)) # infeasible variables
     any!(infeasible_cols, V') # collapse each column
@@ -83,15 +83,15 @@ function pivot_comb(A::Matrix{Float64},
 
         # Update primal and dual variables
         cssls!(AtA,AtB,X,P) # overwrite X[P]
-        X[(!).(P)] = 0.0
+        X[(!).(P)] .= 0.0
         Y[:,infeasible_cols] = AtA*X[:,infeasible_cols] - AtB[:,infeasible_cols]
-        Y[P] = 0.0
+        Y[P] .= 0.0
 
         # identify infeasible columns of X
         @. V = (P & (X < -tol)) | (!P & (Y < -tol)) # infeasible variables
         any!(infeasible_cols, V') # collapse each column
     end
 
-    X[(!).(P)] = 0.0
+    X[(!).(P)] .= 0.0
     return X
 end

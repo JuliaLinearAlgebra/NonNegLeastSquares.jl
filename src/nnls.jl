@@ -1,5 +1,9 @@
 module NNLS
 
+using LinearAlgebra
+using SharedArrays
+using Distributed
+
 export nnls,
        nnls!,
        NNLSWorkspace,
@@ -15,7 +19,7 @@ Charles L. Lawson and Richard J. Hanson at Jet Propulsion Laboratory
 "SOLVING LEAST SQUARES PROBLEMS", Prentice-HalL, 1974.
 Revised FEB 1995 to accompany reprinting of the book by SIAM.
 """
-function construct_householder!{T}(u::AbstractVector{T}, up::T)::T
+function construct_householder!(u::AbstractVector{T}, up::T)::T where {T}
     m = length(u)
     if m <= 1
         return up
@@ -48,7 +52,7 @@ Charles L. Lawson and Richard J. Hanson at Jet Propulsion Laboratory
 "SOLVING LEAST SQUARES PROBLEMS", Prentice-HalL, 1974.
 Revised FEB 1995 to accompany reprinting of the book by SIAM.
 """
-function apply_householder!{T}(u::AbstractVector{T}, up::T, c::AbstractVector{T})
+function apply_householder!(u::AbstractVector{T}, up::T, c::AbstractVector{T}) where {T}
     m = length(u)
     if m > 1
         cl = abs(u[1])
@@ -87,7 +91,7 @@ Revised FEB 1995 to accompany reprinting of the book by SIAM.
       SIG IS COMPUTED LAST TO ALLOW FOR THE POSSIBILITY THAT
       SIG MAY BE IN THE SAME LOCATION AS A OR B .
 """
-function orthogonal_rotmat{T}(a::T, b::T)::Tuple{T, T, T}
+function orthogonal_rotmat(a::T, b::T)::Tuple{T, T, T} where {T}
     if abs(a) > abs(b)
         xr = b / a
         yr = sqrt(1 + xr^2)
@@ -129,7 +133,7 @@ function solve_triangular_system!(zz, A, idx, nsetp, jj)
     return jj
 end
 
-type NNLSWorkspace{T, I <: Integer}
+mutable struct NNLSWorkspace{T, I <: Integer}
     QA::Matrix{T}
     Qb::Vector{T}
     x::Vector{T}
@@ -139,31 +143,31 @@ type NNLSWorkspace{T, I <: Integer}
     rnorm::T
     mode::I
     nsetp::I
-
-    function NNLSWorkspace(m, n)
-        new(Matrix{T}(m, n), # A
-            Vector{T}(m),    # b
-            Vector{T}(n),    # x
-            Vector{T}(n),    # w
-            Vector{T}(m),    # zz
-            Vector{I}(n),    # idx
-            zero(T), # rnorm
-            zero(I), # mode
-            zero(I)  # nsetp
-        )
-    end
 end
 
-function Base.resize!{T}(work::NNLSWorkspace{T}, m::Integer, n::Integer)
-    work.QA = Matrix{T}(m, n)
-    work.Qb = Vector{T}(m)
+function NNLSWorkspace{T,I}(m, n) where {T, I<:Integer}
+    NNLSWorkspace{T,I}(Matrix{T}(undef, m, n), # A
+                       Vector{T}(undef,m),    # b
+                       Vector{T}(undef,n),    # x
+                       Vector{T}(undef,n),    # w
+                       Vector{T}(undef,m),    # zz
+                       Vector{I}(undef,n),    # idx
+                       zero(T), # rnorm
+                       zero(I), # mode
+                       zero(I)  # nsetp
+       )
+end
+
+function Base.resize!(work::NNLSWorkspace{T}, m::Integer, n::Integer) where {T}
+    work.QA = Matrix{T}(undef,m, n)
+    work.Qb = Vector{T}(undef,m)
     resize!(work.x, n)
     resize!(work.w, n)
     resize!(work.zz, m)
     resize!(work.idx, n)
 end
 
-function load!{T}(work::NNLSWorkspace{T}, A::AbstractMatrix{T}, b::AbstractVector{T})
+function load!(work::NNLSWorkspace{T}, A::AbstractMatrix{T}, b::AbstractVector{T}) where {T}
     m, n = size(A)
     @assert size(b) == (m,)
     if size(work.QA, 1) != m || size(work.QA, 2) != n
@@ -174,11 +178,11 @@ function load!{T}(work::NNLSWorkspace{T}, A::AbstractMatrix{T}, b::AbstractVecto
     work
 end
 
-NNLSWorkspace{T, I}(m::Integer, n::Integer,
+NNLSWorkspace(m::Integer, n::Integer,
                     eltype::Type{T}=Float64, 
-                    indextype::Type{I}=Int) = NNLSWorkspace{T, I}(m, n)
+                    indextype::Type{I}=Int) where {T,I} = NNLSWorkspace{T, I}(m, n)
 
-function NNLSWorkspace{T, I}(A::Matrix{T}, b::Vector{T}, indextype::Type{I}=Int)
+function NNLSWorkspace(A::Matrix{T}, b::Vector{T}, indextype::Type{I}=Int) where {T,I}
     m, n = size(A)
     @assert size(b) == (m,)
     work = NNLSWorkspace{T, I}(m, n)
@@ -192,32 +196,32 @@ Views in Julia still allocate some memory (since they need to keep
 a reference to the original array). This type allocates no memory
 and does no bounds checking. Use it with caution.
 """
-immutable UnsafeVectorView{T} <: AbstractVector{T}
+struct UnsafeVectorView{T} <: AbstractVector{T}
     offset::Int
     len::Int
     ptr::Ptr{T}
 end
 
-UnsafeVectorView{T}(parent::DenseArray{T}, start_ind::Integer, len::Integer) = UnsafeVectorView{T}(start_ind - 1, len, pointer(parent))
+UnsafeVectorView(parent::DenseArray{T}, start_ind::Integer, len::Integer) where {T} = UnsafeVectorView{T}(start_ind - 1, len, pointer(parent))
 Base.size(v::UnsafeVectorView) = (v.len,)
 Base.getindex(v::UnsafeVectorView, idx) = unsafe_load(v.ptr, idx + v.offset)
 Base.setindex!(v::UnsafeVectorView, value, idx) = unsafe_store!(v.ptr, value, idx + v.offset)
 Base.length(v::UnsafeVectorView) = v.len
-@static if VERSION >= v"0.6-"
-    Base.IndexStyle{V <: UnsafeVectorView}(::Type{V}) = Base.IndexLinear()
+@static if VERSION >= v"0.7-"
+    Base.IndexStyle(::Type{V}) where {V <: UnsafeVectorView} = Base.IndexLinear() 
 else
-    Base.linearindexing{V <: UnsafeVectorView}(::Type{V}) = Base.LinearFast()
+    Base.IndexStyle{V <: UnsafeVectorView}(::Type{V}) = Base.IndexLinear()
 end
 
 """
 UnsafeVectorView only works for isbits types. For other types, we're already
 allocating lots of memory elsewhere, so creating a new View is fine.
 
-This function looks type-unstable, but the isbits(T) test can be evaluated
+This function looks type-unstable, but the isbitstype(T) test can be evaluated
 by the compiler, so the result is actually type-stable.
 """
-function fastview{T}(parent::DenseArray{T}, start_ind::Integer, len::Integer)
-    if isbits(T)
+function fastview(parent::DenseArray{T}, start_ind::Integer, len::Integer) where {T}
+    if isbitstype(T)
         UnsafeVectorView(parent, start_ind, len)
     else
         @view(parent[start_ind:(start_ind + len - 1)])
@@ -233,7 +237,8 @@ end
     @assert size(work.idx) == (n,)
 end
 
-function largest_positive_dual{T, TI}(w::AbstractVector{T}, idx::AbstractVector{TI}, range)
+function largest_positive_dual(w::AbstractVector{T},
+                                      idx::AbstractVector{TI}, range) where {T,TI}
     wmax = zero(T)
     izmax = zero(TI)
     for i in range
@@ -260,16 +265,18 @@ GIVEN AN M BY N MATRIX, A, AND AN M-VECTOR, B,  COMPUTE AN
 N-VECTOR, X, THAT SOLVES THE LEAST SQUARES PROBLEM
                  A * X = B  SUBJECT TO X .GE. 0
 """
-function nnls!{T, TI}(work::NNLSWorkspace{T, TI}, max_iter::Integer=(3 * size(work.QA, 2)))
+function nnls!(work::NNLSWorkspace{T, TI},
+                      max_iter::Integer=(3 * size(work.QA, 2))) where {T, TI}
     checkargs(work)
 
     A = work.QA
+    Ainds = LinearIndices(A)
     b = work.Qb
     x = work.x
     w = work.w
     zz = work.zz
     idx = work.idx
-    const factor = 0.01
+    factor = 0.01
     work.mode = 1
 
     m = convert(TI, size(A, 1))
@@ -328,8 +335,7 @@ function nnls!{T, TI}(work::NNLSWorkspace{T, TI}, max_iter::Integer=(3 * size(wo
             # NEAR LINEAR DEPENDENCE.
             Asave = A[nsetp + 1, j]
             up = construct_householder!(
-                fastview(A, sub2ind(A, nsetp + 1, j), m - nsetp),
-                up)
+                 fastview(A, Ainds[nsetp + 1, j], m - nsetp), up)
             unorm::T = zero(T)
             for l in 1:nsetp
                 unorm += A[l, j]^2
@@ -342,7 +348,7 @@ function nnls!{T, TI}(work::NNLSWorkspace{T, TI}, max_iter::Integer=(3 * size(wo
                 # println("copying b into zz")
                 zz .= b
                 apply_householder!(
-                    fastview(A, sub2ind(A, nsetp + 1, j), m - nsetp),
+                    fastview(A, Ainds[nsetp + 1, j], m - nsetp),
                     up,
                     fastview(zz, nsetp + 1, m - nsetp))
                 ztest = zz[nsetp + 1] / A[nsetp + 1, j]
@@ -378,9 +384,9 @@ function nnls!{T, TI}(work::NNLSWorkspace{T, TI}, max_iter::Integer=(3 * size(wo
             for jz in iz1:iz2
                 jj = idx[jz]
                 apply_householder!(
-                    fastview(A, sub2ind(A, nsetp, j), m - nsetp + 1),
+                    fastview(A, Ainds[nsetp, j], m - nsetp + 1),
                     up,
-                    fastview(A, sub2ind(A, nsetp, jj), m - nsetp + 1))
+                    fastview(A, Ainds[nsetp, jj], m - nsetp + 1))
             end
         end
 
@@ -438,7 +444,7 @@ function nnls!{T, TI}(work::NNLSWorkspace{T, TI}, max_iter::Integer=(3 * size(wo
             # MODIFY A AND B AND THE INDEX ARRAYS TO MOVE COEFFICIENT I
             # FROM SET P TO SET Z.
             i = idx[jj]
-
+            kk = 1
             while true
                 x[i] = 0
 
@@ -480,6 +486,7 @@ function nnls!{T, TI}(work::NNLSWorkspace{T, TI}, max_iter::Integer=(3 * size(wo
                     i = idx[jj]
                     if x[i] <= 0
                         allfeasible = false
+                        kk = jj
                         break
                     end
                 end
@@ -490,7 +497,7 @@ function nnls!{T, TI}(work::NNLSWorkspace{T, TI}, max_iter::Integer=(3 * size(wo
 
             # COPY B( ) INTO ZZ( ).  THEN SOLVE AGAIN AND LOOP BACK.
             zz .= b
-            jj = solve_triangular_system!(zz, A, idx, nsetp, jj)
+            jj = solve_triangular_system!(zz, A, idx, nsetp, kk)
         end
         if terminated
             break
@@ -520,7 +527,10 @@ function nnls!{T, TI}(work::NNLSWorkspace{T, TI}, max_iter::Integer=(3 * size(wo
     return work.x
 end
 
-function nnls!{T}(work::NNLSWorkspace{T}, A::AbstractMatrix{T}, b::AbstractVector{T}, max_iter=(3 * size(A, 2)))
+function nnls!(work::NNLSWorkspace{T},
+                  A::AbstractMatrix{T},
+                  b::AbstractVector{T},
+                  max_iter=(3 * size(A, 2))) where {T}
     load!(work, A, b)
     nnls!(work, max_iter)
     work.x
@@ -539,31 +549,31 @@ References:
     Lawson, C.L. and R.J. Hanson, Solving Least-Squares Problems,
     Prentice-Hall, Chapter 23, p. 161, 1974.
 """
-function nnls{T}(A::AbstractMatrix{T},
-                 b::AbstractVector{T};
-                 max_iter::Int=(3 * size(A, 2)))
+function nnls(A::AbstractMatrix{T},
+              b::AbstractVector{T};
+              max_iter::Int=(3 * size(A, 2))) where {T}
     work = NNLSWorkspace(A, b)
     nnls!(work, max_iter)
     work.x
 end
 
-function nnls{T}(A::Matrix{T},
-                 B::Matrix{T};
-                 use_parallel = true,
-                 max_iter::Int=(3 * size(A, 2)))
+function nnls(A::Matrix{T},
+              B::Matrix{T};
+              use_parallel = true,
+              max_iter::Int=(3 * size(A, 2))) where {T}
 
     m, n = size(A)
     k = size(B, 2)
 
     if k > 1 && use_parallel && nprocs() > 1
         X = SharedArray(T, n, k)
-        @sync @parallel for i = 1:k
+        @sync @distributed for i = 1:k
             X[:, i] = nnls(A, @view(B[:,i]); max_iter=max_iter)
         end
         return convert(Array, X)
     else
         work = NNLSWorkspace(m, n, T)
-        X = Array{T}(n, k)
+        X = Array{T}(undef,n, k)
         for i = 1:k
             X[:, i] = nnls!(work, A, @view(B[:,i]), max_iter)
         end
