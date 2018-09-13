@@ -3,6 +3,9 @@ isdefined(Base, :__precompile__) && __precompile__()
 module NonNegLeastSquares
 
 using Compat
+using Distributed
+using LinearAlgebra
+using SharedArrays
 
 export nonneg_lsq
 

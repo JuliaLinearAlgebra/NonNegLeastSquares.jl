@@ -1,4 +1,5 @@
-using Base.Test
+using Test
+using LinearAlgebra
 using NonNegLeastSquares
 using PyCall
 const pyopt = pyimport_conda("scipy.optimize", "scipy")

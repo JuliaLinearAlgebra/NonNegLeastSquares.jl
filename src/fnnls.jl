@@ -35,14 +35,14 @@ function fnnls(AtA::Matrix{Float64},
 
         # find i that maximizes w, restricting i to indices not in P
         # Note: the while loop condition guarantees at least one w[~P]>0
-        i = indmax(w .* (!).(P))
+        i = argmax(w .* (!).(P))
 
         # Move i to P
         P[i] = true
 
         # Solve least-squares problem, with zeros for columns/elements not in P
         s[P] = AtA[P,P] \ Atb[P]
-        s[(!).(P)] = 0.0 # zero out elements not in P
+        s[(!).(P)] .= 0.0 # zero out elements not in P
 
         # Inner loop: deal with negative elements of s
         while any(s[P].<=tol)
@@ -66,7 +66,7 @@ function fnnls(AtA::Matrix{Float64},
 
             # Solve least-squares problem again, zeroing nonpositive columns
             s[P] = AtA[P,P] \ Atb[P]
-            s[(!).(P)] = 0.0 # zero out elements not in P
+            s[(!).(P)] .= 0.0 # zero out elements not in P
         end
 
         # update solution
@@ -97,12 +97,12 @@ function fnnls(A::Matrix{Float64},
         
     if use_parallel && nprocs()>1
         X = SharedArray(Float64,n,k)
-        @sync @parallel for i = 1:k
+        @sync @distributed for i = 1:k
             X[:,i] = fnnls(AtA, AtB[:,i]; kwargs...)
         end
         X = convert(Array,X)
     else
-        X = Array{Float64}(n,k)
+        X = Array{Float64}(undef,n,k)
         for i = 1:k
             X[:,i] = fnnls(AtA, AtB[:,i]; kwargs...)
         end

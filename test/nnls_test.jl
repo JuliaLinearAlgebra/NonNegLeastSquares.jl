@@ -1,6 +1,8 @@
 module NnlsTest
 
-using Base.Test
+using Test
+using LinearAlgebra
+using Random
 using PyCall
 const pyopt = pyimport_conda("scipy.optimize", "scipy")
 using NonNegLeastSquares.NNLS
@@ -24,7 +26,7 @@ macro wrappedallocs(expr)
 end
 
 @testset "bigfloat" begin
-    srand(5)
+    Random.seed!(5)
     for i in 1:100
         m = rand(1:10)
         n = rand(1:10)
@@ -37,7 +39,7 @@ end
 end
 
 @testset "apply_householder!" begin
-    srand(2)
+    Random.seed!(2)
     for i in 1:10
         u = randn(rand(3:10))
         c = randn(length(u))
@@ -58,7 +60,7 @@ end
 end
 
 @testset "orthogonal_rotmat" begin
-    srand(3)
+    Random.seed!(3)
     for i in 1:1000
         a = randn()
         b = randn()
@@ -72,7 +74,7 @@ end
 
 if test_allocs
     @testset "nnls allocations" begin
-        srand(101)
+        Random.seed!(101)
         for i in 1:50
             m = rand(20:100)
             n = rand(20:100)
@@ -85,7 +87,7 @@ if test_allocs
 end
 
 @testset "nnls workspace reuse" begin
-    srand(200)
+    Random.seed!(200)
     m = 10
     n = 20
     work = NNLSWorkspace(m, n)
@@ -129,7 +131,7 @@ if test_allocs
 end
 
 @testset "nnls vs scipy" begin
-    srand(5)
+    Random.seed!(5)
     for i in 1:5000
         m = rand(1:60)
         n = rand(1:60)
