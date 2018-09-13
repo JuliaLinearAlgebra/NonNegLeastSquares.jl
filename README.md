@@ -1,6 +1,4 @@
 [![Build Status](https://travis-ci.org/ahwillia/NonNegLeastSquares.jl.svg)](https://travis-ci.org/ahwillia/NonNegLeastSquares.jl?branch=master)
-[![NonNegLeastSquares](http://pkg.julialang.org/badges/NonNegLeastSquares_0.5.svg)](http://pkg.julialang.org/?pkg=NonNegLeastSquares)
-[![NonNegLeastSquares](http://pkg.julialang.org/badges/NonNegLeastSquares_0.6.svg)](http://pkg.julialang.org/?pkg=NonNegLeastSquares)
 [![License](http://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat)](LICENSE.md)
 
 # NonNegLeastSquares.jl
