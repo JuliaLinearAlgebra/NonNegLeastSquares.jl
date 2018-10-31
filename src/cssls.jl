@@ -21,7 +21,7 @@ References:
 	pp. 3261–3281.
 
 	M. H. Van Benthem and M. R. Keenan, Fast algorithm for the solution of
-	large-scale non-negativity-constrained least squares problems. J. 
+	large-scale non-negativity-constrained least squares problems. J.
 	Chemometrics 2004; 18: 441-450
 """
 function cssls!(
@@ -30,11 +30,11 @@ function cssls!(
 	X::Matrix{Float64},   # (n x p) matrix
 	P::AbstractArray{Bool}
 	)
-	
+
 	n,p = size(AtB)
 
 	# Find unique columns in P
-	U = unique(P,dims=2) 
+	U = unique(P,dims=2)
 	num_unique = size(U,2)
 
 	# Find indices associates with unique columns in P
@@ -43,7 +43,7 @@ function cssls!(
 	for i = 1:num_unique
 		# array of indices where P[:,e] == U[:,i]
 		e = (Int)[]
-		
+
 		# find columns of P that match U[:,i]
 		j = 1
 		while j <= length(rp)
@@ -68,7 +68,7 @@ function cssls!(
 	# Update X, solve each unique combinatorial subspace
 	for i = 1:num_unique
 		rr = U[:,i] # row mask (the passive set)
-		
+
 		# If the passive set is empty, these columns are already feasible.
 		# So don't waste time updating them.
 		if any(rr)

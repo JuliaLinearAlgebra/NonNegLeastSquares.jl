@@ -21,10 +21,10 @@ function fnnls(AtA::Matrix{Float64},
     n = size(AtA,1)
     x = zeros(n)
     s = zeros(n)
-    
+
     # P is a bool array storing positive elements of x
     # i.e., x[P] > 0 and x[~P] == 0
-    P = x .> tol 
+    P = x .> tol
     w = Atb - AtA*x
 
     # We have reached an optimum when either:
@@ -94,9 +94,9 @@ function fnnls(A::Matrix{Float64},
         AtA = A'*A
         AtB = A'*B
     end
-        
+
     if use_parallel && nprocs()>1
-        X = SharedArray(Float64,n,k)
+        X = SharedArray{Float64}(n,k)
         @sync @distributed for i = 1:k
             X[:,i] = fnnls(AtA, AtB[:,i]; kwargs...)
         end

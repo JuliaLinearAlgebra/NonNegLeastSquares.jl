@@ -1,7 +1,7 @@
 """
 x = pivot_cache(A, b; ...)
 
-Solves non-negative least-squares problem by block principal pivoting method 
+Solves non-negative least-squares problem by block principal pivoting method
 (Algorithm 1) described in Kim & Park (2011).
 
 Optional arguments:
@@ -61,7 +61,7 @@ function pivot_cache(AtA::Matrix{Float64},
     	end
 
     	# update passive set
-        #     P & ~V removes infeasible variables from P 
+        #     P & ~V removes infeasible variables from P
         #     V & ~P  moves infeasible variables in ~P to P
 		@__dot__ P = (P & !V) | (V & !P)
 
@@ -70,7 +70,7 @@ function pivot_cache(AtA::Matrix{Float64},
         #x[(!).(P)] = 0.0
         y[(!).(P)] = AtA[(!).(P),P]*x[P] - Atb[(!).(P)]
         #y[P] = 0.0
-        
+
         # check infeasibility
         @__dot__ V = (P & (x < -tol)) | (!P & (y < -tol))
         nV = sum(V)
@@ -100,10 +100,10 @@ function pivot_cache(A::Matrix{Float64},
         AtA = A'*A
         AtB = A'*B
     end
-    
+
     # compute result for each column
     if use_parallel && nprocs()>1
-        X = SharedArray(Float64,n,k)
+        X = SharedArray{Float64}(n,k)
         @sync @distributed for i = 1:k
             X[:,i] = pivot_cache(AtA, AtB[:,i]; kwargs...)
         end

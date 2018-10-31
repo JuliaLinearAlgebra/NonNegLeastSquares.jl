@@ -35,7 +35,7 @@ function admm(A::Matrix{Float64},
     # Matrix storing the solutions
     X = zeros(k,n)
 
-    # Initialize variables  
+    # Initialize variables
     Z,U = zeros(k,n),zeros(k,n)
     X = L \ (AtB+ρ*(Z-U))
 

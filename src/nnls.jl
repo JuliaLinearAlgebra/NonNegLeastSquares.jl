@@ -566,7 +566,7 @@ function nnls(A::Matrix{T},
     k = size(B, 2)
 
     if k > 1 && use_parallel && nprocs() > 1
-        X = SharedArray(T, n, k)
+        X = SharedArray{T}(n, k)
         @sync @distributed for i = 1:k
             X[:, i] = nnls(A, @view(B[:,i]); max_iter=max_iter)
         end
