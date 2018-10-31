@@ -1,7 +1,7 @@
 """
 x = pivot(A, b; ...)
 
-Solves non-negative least-squares problem by block principal pivoting method 
+Solves non-negative least-squares problem by block principal pivoting method
 (Algorithm 1) described in Kim & Park (2011).
 
 Optional arguments:
@@ -61,7 +61,7 @@ function pivot(A::Matrix{Float64},
     	end
 
     	# update passive set
-        #     P & ~V removes infeasible variables from P 
+        #     P & ~V removes infeasible variables from P
         #     V & ~P  moves infeasible variables in ~P to P
 		@__dot__ P = (P & !V) | (V & !P)
 
@@ -87,10 +87,10 @@ function pivot(A::Matrix{Float64},
 
     n = size(A,2)
     k = size(B,2)
-    
+
     # compute result for each column
     if use_parallel && nprocs()>1
-        X = SharedArray(Float64,n,k)
+        X = SharedArray{Float64}(n,k)
         @sync @distributed for i = 1:k
             X[:,i] = pivot(A, B[:,i]; kwargs...)
         end

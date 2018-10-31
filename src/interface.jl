@@ -14,7 +14,7 @@ Optional arguments
     :nnls - Classic active-set method (Lawson & Hanson, 1974)
     :admm - Alternating Direction Method of Multipliers (e.g., Boyd et al., 2011)
 
-**variant:** a symbol specifying the variant, if applicable, 
+**variant:** a symbol specifying the variant, if applicable,
 
 **gram:** a boolean indicating whether inputs A,B are Gram matrices A'*A,A'*B or data matrices A,B.
 
