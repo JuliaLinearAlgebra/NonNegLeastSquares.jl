@@ -147,11 +147,11 @@ end
 
 function NNLSWorkspace{T,I}(m, n) where {T, I<:Integer}
     NNLSWorkspace{T,I}(Matrix{T}(undef, m, n), # A
-                       Vector{T}(undef,m),    # b
-                       Vector{T}(undef,n),    # x
-                       Vector{T}(undef,n),    # w
-                       Vector{T}(undef,m),    # zz
-                       Vector{I}(undef,n),    # idx
+                       Vector{T}(undef, m),    # b
+                       Vector{T}(undef, n),    # x
+                       Vector{T}(undef, n),    # w
+                       Vector{T}(undef, m),    # zz
+                       Vector{I}(undef, n),    # idx
                        zero(T), # rnorm
                        zero(I), # mode
                        zero(I)  # nsetp
@@ -265,8 +265,11 @@ GIVEN AN M BY N MATRIX, A, AND AN M-VECTOR, B,  COMPUTE AN
 N-VECTOR, X, THAT SOLVES THE LEAST SQUARES PROBLEM
                  A * X = B  SUBJECT TO X .GE. 0
 """
-function nnls!(work::NNLSWorkspace{T, TI},
-                      max_iter::Integer=(3 * size(work.QA, 2))) where {T, TI}
+function nnls!(
+    work::NNLSWorkspace{T, TI},
+    max_iter::Integer=(3 * size(work.QA, 2)),
+    ) where {T, TI}
+
     checkargs(work)
 
     A = work.QA

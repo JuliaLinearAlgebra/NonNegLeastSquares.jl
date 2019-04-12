@@ -28,17 +28,17 @@ A2 = [ -0.24  -0.82   1.35   0.36   0.35
         0.48  -2.25   0.38   0.06  -1.29 ]
 b2 = [-1.6,  0.19,  0.17,  0.31, -1.27]
 x2 = [2.2010416, 1.19009924, 0.0, 1.55001345, 0.0]
-@test norm(fnnls(A2,b2)-x2) < 1e-5
-@test norm(fnnls(A2'*A2,A2'*b2;gram=true)-x2) < 1e-5
+@test norm(fnnls(A2, b2) - x2) < 1e-5
+@test norm(fnnls(A2' * A2, A2' * b2; gram=true) - x2) < 1e-5
 
 ## Test a bunch of random cases against python
 
 for i = 1:10
-	m,n = rand(1:10),rand(1:10)
+	m, n = rand(1:10), rand(1:10)
 	A3 = randn(m,n)
 	b3 = randn(m)
-	x3,resid = pyopt.nnls(A3,b3)
-	@test norm(fnnls(A3,b3)-x3) < 1e-5
+	x3, resid = pyopt.nnls(A3, b3)
+	@test norm(fnnls(A3, b3) - x3) < 1e-5
 	@test norm(fnnls(A3'*A3,A3'*b3;gram=true)-x3) < 1e-5
 end
 
@@ -48,6 +48,6 @@ for i = 1:10
   A4 = randn(m,n)
   b4 = randn(m)
   x4 = nnls(A4,b4)
-  @test norm(fnnls(A4,b4)-x4) < 1e-5
-  @test norm(fnnls(A4'*A4,A4'*b4;gram=true)-x4) < 1e-5
+  @test norm(fnnls(A4, b4) - x4) < 1e-5
+  @test norm(fnnls(A4' * A4, A4' * b4; gram=true) - x4) < 1e-5
 end

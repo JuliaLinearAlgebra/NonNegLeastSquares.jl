@@ -93,7 +93,7 @@ end
 function pivot_cache(A,
                      B::AbstractMatrix{T};
                      gram::Bool = false,
-                     use_parallel::Bool = true,
+                     use_parallel::Bool = false,
                      kwargs...) where {T}
 
     n = size(A,2)

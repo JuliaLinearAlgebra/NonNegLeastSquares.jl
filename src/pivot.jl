@@ -20,10 +20,10 @@ function pivot(A,
 
 
     # dimensions, initialize solution
-    p,q = size(A)
+    p, q = size(A)
 
-    x = zeros(T, q) # primal variables
-    y = -A'*b    # dual variables
+    x = zeros(T, q)   # primal variables
+    y = -A' * b    # dual variables
 
     # parameters for swapping
     α = 3
@@ -83,7 +83,7 @@ end
 ## if multiple right hand sides are provided, solve each problem separately.
 function pivot(A,
                B::AbstractMatrix{T};
-               use_parallel = true,
+               use_parallel = false,
                kwargs...) where {T}
 
     n = size(A,2)

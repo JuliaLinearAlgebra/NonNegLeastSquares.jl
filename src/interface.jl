@@ -60,7 +60,7 @@ function nonneg_lsq(
     elseif alg == :pivot
         return pivot(A, B; kwargs...)
     else
-        error("Specified algorithm :",alg," not recognized.")
+        error("Specified algorithm :", alg, " not recognized.")
     end
 end
 
