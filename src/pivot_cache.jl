@@ -32,9 +32,8 @@ function pivot_cache(AtA,
     # Store indices for the passive set, P
     #    we want Y[P] == 0, X[P] >= 0
     #    we want X[~P]== 0, Y[~P] >= 0
-    P = BitArray(undef,q)
+    P = BitArray(false for _ in 1:q)
 
-	x[P] = _get_primal_dual(AtA, Atb, P)
     y[(!).(P)] = AtA[(!).(P),P]*x[P] - Atb[(!).(P)]
 
     # identify indices of infeasible variables
@@ -66,7 +65,9 @@ function pivot_cache(AtA,
 		@__dot__ P = (P & !V) | (V & !P)
 
 		# update primal/dual variables
-        x[P] = _get_primal_dual(AtA, Atb, P)
+		if !all(!, P)
+        	x[P] = _get_primal_dual(AtA, Atb, P)
+		end
         #x[(!).(P)] = 0.0
         y[(!).(P)] = AtA[(!).(P),P]*x[P] - Atb[(!).(P)]
         #y[P] = 0.0
@@ -76,7 +77,7 @@ function pivot_cache(AtA,
         nV = sum(V)
     end
 
-    x[(!).(P)] .= 0.0
+    x[(!).(P)] .= zero(eltype(x))
     return x
 end
 

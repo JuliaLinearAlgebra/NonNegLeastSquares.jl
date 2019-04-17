@@ -32,9 +32,8 @@ function pivot(A,
     # Store indices for the passive set, P
     #    we want Y[P] == 0, X[P] >= 0
     #    we want X[~P]== 0, Y[~P] >= 0
-    P = BitArray(undef,q)
+    P = BitArray(false for _ in 1:q)
 
-    x[P] =  A[:,P] \ b
     y[(!).(P)] =  A[:,(!).(P)]' * (A[:,P]*x[P] - b)
 
     # identify indices of infeasible variables
@@ -66,7 +65,9 @@ function pivot(A,
 		@__dot__ P = (P & !V) | (V & !P)
 
 		# update primal/dual variables
-		x[P] =  A[:,P] \ b
+		if !all(!, P)
+			x[P] =  A[:,P] \ b
+		end
 		y[(!).(P)] =  A[:,(!).(P)]' * ((A[:,P]*x[P]) - b)
 
         # check infeasibility
