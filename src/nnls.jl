@@ -179,7 +179,7 @@ function load!(work::NNLSWorkspace{T}, A::AbstractMatrix{T}, b::AbstractVector{T
 end
 
 NNLSWorkspace(m::Integer, n::Integer,
-                    eltype::Type{T}=Float64, 
+                    eltype::Type{T}=Float64,
                     indextype::Type{I}=Int) where {T,I} = NNLSWorkspace{T, I}(m, n)
 
 function NNLSWorkspace(A::Matrix{T}, b::Vector{T}, indextype::Type{I}=Int) where {T,I}
@@ -208,7 +208,7 @@ Base.getindex(v::UnsafeVectorView, idx) = unsafe_load(v.ptr, idx + v.offset)
 Base.setindex!(v::UnsafeVectorView, value, idx) = unsafe_store!(v.ptr, value, idx + v.offset)
 Base.length(v::UnsafeVectorView) = v.len
 @static if VERSION >= v"0.7-"
-    Base.IndexStyle(::Type{V}) where {V <: UnsafeVectorView} = Base.IndexLinear() 
+    Base.IndexStyle(::Type{V}) where {V <: UnsafeVectorView} = Base.IndexLinear()
 else
     Base.IndexStyle{V <: UnsafeVectorView}(::Type{V}) = Base.IndexLinear()
 end
@@ -549,7 +549,7 @@ References:
     Lawson, C.L. and R.J. Hanson, Solving Least-Squares Problems,
     Prentice-Hall, Chapter 23, p. 161, 1974.
 """
-function nnls(A::AbstractMatrix{T},
+function nnls(A,
               b::AbstractVector{T};
               max_iter::Int=(3 * size(A, 2))) where {T}
     work = NNLSWorkspace(A, b)
@@ -557,8 +557,8 @@ function nnls(A::AbstractMatrix{T},
     work.x
 end
 
-function nnls(A::Matrix{T},
-              B::Matrix{T};
+function nnls(A,
+              B::AbstractMatrix{T};
               use_parallel = true,
               max_iter::Int=(3 * size(A, 2))) where {T}
 

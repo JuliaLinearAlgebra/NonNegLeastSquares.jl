@@ -15,8 +15,8 @@ References:
 
     http://stanford.edu/~eryu/nnlsqr.html
 """
-function admm(A::Matrix{Float64},
-              B::Matrix{Float64};
+function admm(A,
+              B::AbstractMatrix;
               ρ=max(1.0, vecnorm(A)^2/size(A,2)),
               ε=sqrt(size(A,2)*size(B,2))*1e-15,
               max_iter=1000*size(A,2),
@@ -32,11 +32,10 @@ function admm(A::Matrix{Float64},
     # Cache cholesky factorization
     L = cholfact(A'*A + ρ*I)
 
-    # Matrix storing the solutions
-    X = zeros(k,n)
-
     # Initialize variables
     Z,U = zeros(k,n),zeros(k,n)
+    
+    # Matrix storing the solutions
     X = L \ (AtB+ρ*(Z-U))
 
     # Solve
@@ -50,4 +49,3 @@ function admm(A::Matrix{Float64},
 
     return max(0, X)
 end
-

@@ -14,8 +14,8 @@ References:
     active-set-like method and comparisons, SIAM J. Sci. Comput., 33 (2011),
     pp. 3261–3281.
 """
-function pivot_comb(A::Matrix{Float64},
-               B::Matrix{Float64};
+function pivot_comb(A,
+               B::AbstractMatrix;
                tol::Float64=1e-8,
                max_iter=30*size(A,2))
 

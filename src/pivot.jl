@@ -13,8 +13,8 @@ References:
 	active-set-like method and comparisons, SIAM J. Sci. Comput., 33 (2011),
 	pp. 3261–3281.
 """
-function pivot(A::Matrix{Float64},
-               b::Vector{Float64};
+function pivot(A,
+               b::AbstractVector;
                tol::Float64=1e-8,
                max_iter=30*size(A,2))
 
@@ -74,14 +74,14 @@ function pivot(A::Matrix{Float64},
         nV = sum(V)
     end
 
-    x[(!).(P)] .= 0.0
+    x[(!).(P)] .= zero(eltype(x))
     return x
 end
 
 
 ## if multiple right hand sides are provided, solve each problem separately.
-function pivot(A::Matrix{Float64},
-               B::Matrix{Float64};
+function pivot(A,
+               B::AbstractMatrix;
                use_parallel = true,
                kwargs...)
 
@@ -90,13 +90,13 @@ function pivot(A::Matrix{Float64},
 
     # compute result for each column
     if use_parallel && nprocs()>1
-        X = SharedArray{Float64}(n,k)
+        X = SharedArray{eltype(B)}(n,k)
         @sync @distributed for i = 1:k
             X[:,i] = pivot(A, B[:,i]; kwargs...)
         end
         X = convert(Array,X)
     else
-        X = Array{Float64}(undef,n,k)
+        X = Array{eltype(B)}(undef,n,k)
         for i = 1:k
             X[:,i] = pivot(A, B[:,i]; kwargs...)
         end
@@ -104,4 +104,3 @@ function pivot(A::Matrix{Float64},
 
     return X
 end
-
