@@ -7,8 +7,8 @@ using PyCall
 nnls(A,b) = nonneg_lsq(A,b;alg=:nnls)
 fnnls(A,b;gram=false) = nonneg_lsq(A,b;alg=:fnnls,gram=gram)
 
-# Solve A*x = b for x, subject to x >=0 
-A = [ 0.53879488  0.65816267 
+# Solve A*x = b for x, subject to x >=0
+A = [ 0.53879488  0.65816267
       0.12873446  0.98669198
       0.24555042  0.00598804
       0.80491791  0.32793762 ]
@@ -32,7 +32,6 @@ x2 = [2.2010416, 1.19009924, 0.0, 1.55001345, 0.0]
 @test norm(fnnls(A2'*A2,A2'*b2;gram=true)-x2) < 1e-5
 
 ## Test a bunch of random cases against python
-@pyimport scipy.optimize as pyopt
 
 for i = 1:10
 	m,n = rand(1:10),rand(1:10)
