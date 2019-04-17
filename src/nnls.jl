@@ -70,7 +70,7 @@ function apply_householder!(u::AbstractVector{T}, up::T, c::AbstractVector{T}) w
         if sm != 0
             sm *= b
             c[1] += sm * up
-            for i in 2:m
+            @inbounds for i in 2:m
                 c[i] += sm * u[i]
             end
         end
@@ -120,7 +120,7 @@ Charles L. Lawson and Richard J. Hanson at Jet Propulsion Laboratory
 Revised FEB 1995 to accompany reprinting of the book by SIAM.
 """
 function solve_triangular_system!(zz, A, idx, nsetp, jj)
-    for l in 1:nsetp
+    @inbounds for l in 1:nsetp
         ip = nsetp + 1 - l
         if (l != 1)
             for ii in 1:ip
@@ -307,7 +307,7 @@ function nnls!(work::NNLSWorkspace{T, TI},
         end
 
         # COMPUTE COMPONENTS OF THE DUAL (NEGATIVE GRADIENT) VECTOR W().
-        for i in iz1:iz2
+        @inbounds for i in iz1:iz2
             idxi = idx[i]
             sm = zero(T)
             for l in (nsetp + 1):m
@@ -316,7 +316,7 @@ function nnls!(work::NNLSWorkspace{T, TI},
             w[idxi] = sm
         end
 
-        while true
+        @inbounds while true
             # FIND LARGEST POSITIVE W(J).
             wmax, izmax = largest_positive_dual(w, idx, iz1:iz2)
 
