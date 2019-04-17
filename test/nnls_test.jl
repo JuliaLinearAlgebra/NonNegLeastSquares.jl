@@ -38,6 +38,20 @@ end
     end
 end
 
+@testset "Float32" begin
+    Random.seed!(5)
+    for i in 1:100
+        m = rand(1:10)
+        n = rand(1:10)
+        A = randn(m, n)
+        b = randn(m)
+        x1 = nnls(A, b)
+        x2 = nnls(Float32.(A), Float32.(b))
+        @test x1 ≈ x2
+    end
+end
+
+
 @testset "apply_householder!" begin
     Random.seed!(2)
     for i in 1:10

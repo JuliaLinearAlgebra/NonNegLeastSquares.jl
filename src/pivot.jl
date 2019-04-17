@@ -14,15 +14,15 @@ References:
 	pp. 3261–3281.
 """
 function pivot(A,
-               b::AbstractVector;
+               b::AbstractVector{T};
                tol::Float64=1e-8,
-               max_iter=30*size(A,2))
+               max_iter=30*size(A,2)) where T
 
 
     # dimensions, initialize solution
     p,q = size(A)
 
-    x = zeros(q) # primal variables
+    x = zeros(T, q) # primal variables
     y = -A'*b    # dual variables
 
     # parameters for swapping
@@ -82,22 +82,22 @@ end
 
 ## if multiple right hand sides are provided, solve each problem separately.
 function pivot(A,
-               B::AbstractMatrix;
+               B::AbstractMatrix{T};
                use_parallel = true,
-               kwargs...)
+               kwargs...) where {T}
 
     n = size(A,2)
     k = size(B,2)
 
     # compute result for each column
     if use_parallel && nprocs()>1
-        X = SharedArray{eltype(B)}(n,k)
+        X = SharedArray{T}(n,k)
         @sync @distributed for i = 1:k
             X[:,i] = pivot(A, B[:,i]; kwargs...)
         end
         X = convert(Array,X)
     else
-        X = Array{eltype(B)}(undef,n,k)
+        X = Array{T}(undef,n,k)
         for i = 1:k
             X[:,i] = pivot(A, B[:,i]; kwargs...)
         end

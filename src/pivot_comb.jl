@@ -15,9 +15,9 @@ References:
     pp. 3261–3281.
 """
 function pivot_comb(A,
-               B::AbstractMatrix;
+               B::AbstractMatrix{T};
                tol::Float64=1e-8,
-               max_iter=30*size(A,2))
+               max_iter=30*size(A,2)) where {T}
 
     # precompute constant portion of pseudoinverse
     AtA = A'*A
@@ -25,7 +25,7 @@ function pivot_comb(A,
 
     # dimensions, initialize solution
     q,r = size(AtB)
-    X = zeros(q,r) # primal variables
+    X = zeros(T, q,r) # primal variables
     Y = -AtB       # dual variables
 
     # parameters for swapping

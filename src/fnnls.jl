@@ -14,13 +14,13 @@ References:
     algorithm. Journal of Chemometrics. 11, 393–401 (1997)
 """
 function fnnls(AtA,
-               Atb::AbstractVector;
+               Atb::AbstractVector{T};
                tol::Float64=1e-8,
-               max_iter=30*size(AtA,2))
+               max_iter=30*size(AtA,2)) where {T}
 
     n = size(AtA,1)
-    x = zeros(n)
-    s = zeros(n)
+    x = zeros(T, n)
+    s = zeros(T, n)
 
     # P is a bool array storing positive elements of x
     # i.e., x[P] > 0 and x[~P] == 0

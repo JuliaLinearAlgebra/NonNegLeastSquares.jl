@@ -1,6 +1,7 @@
 using Test
 using LinearAlgebra
 using NonNegLeastSquares
+using SparseArrays
 using PyCall
 const pyopt = pyimport_conda("scipy.optimize", "scipy")
 
@@ -60,3 +61,4 @@ end
 @testset "NNLS" begin include("nnls_test.jl") end
 @testset "FNNLS" begin include("fnnls_test.jl") end
 @testset "Pivot" begin include("pivot_test.jl") end
+@testset "Sparse" begin include("sparse_test.jl") end
