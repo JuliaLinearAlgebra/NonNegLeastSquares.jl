@@ -70,7 +70,7 @@ function apply_householder!(u::AbstractVector{T}, up::T, c::AbstractVector{T}) w
         if sm != 0
             sm *= b
             c[1] += sm * up
-            for i in 2:m
+            @inbounds for i in 2:m
                 c[i] += sm * u[i]
             end
         end
@@ -120,7 +120,7 @@ Charles L. Lawson and Richard J. Hanson at Jet Propulsion Laboratory
 Revised FEB 1995 to accompany reprinting of the book by SIAM.
 """
 function solve_triangular_system!(zz, A, idx, nsetp, jj)
-    for l in 1:nsetp
+    @inbounds for l in 1:nsetp
         ip = nsetp + 1 - l
         if (l != 1)
             for ii in 1:ip
@@ -179,7 +179,7 @@ function load!(work::NNLSWorkspace{T}, A::AbstractMatrix{T}, b::AbstractVector{T
 end
 
 NNLSWorkspace(m::Integer, n::Integer,
-                    eltype::Type{T}=Float64, 
+                    eltype::Type{T}=Float64,
                     indextype::Type{I}=Int) where {T,I} = NNLSWorkspace{T, I}(m, n)
 
 function NNLSWorkspace(A::Matrix{T}, b::Vector{T}, indextype::Type{I}=Int) where {T,I}
@@ -208,7 +208,7 @@ Base.getindex(v::UnsafeVectorView, idx) = unsafe_load(v.ptr, idx + v.offset)
 Base.setindex!(v::UnsafeVectorView, value, idx) = unsafe_store!(v.ptr, value, idx + v.offset)
 Base.length(v::UnsafeVectorView) = v.len
 @static if VERSION >= v"0.7-"
-    Base.IndexStyle(::Type{V}) where {V <: UnsafeVectorView} = Base.IndexLinear() 
+    Base.IndexStyle(::Type{V}) where {V <: UnsafeVectorView} = Base.IndexLinear()
 else
     Base.IndexStyle{V <: UnsafeVectorView}(::Type{V}) = Base.IndexLinear()
 end
@@ -307,7 +307,7 @@ function nnls!(work::NNLSWorkspace{T, TI},
         end
 
         # COMPUTE COMPONENTS OF THE DUAL (NEGATIVE GRADIENT) VECTOR W().
-        for i in iz1:iz2
+        @inbounds for i in iz1:iz2
             idxi = idx[i]
             sm = zero(T)
             for l in (nsetp + 1):m
@@ -316,7 +316,7 @@ function nnls!(work::NNLSWorkspace{T, TI},
             w[idxi] = sm
         end
 
-        while true
+        @inbounds while true
             # FIND LARGEST POSITIVE W(J).
             wmax, izmax = largest_positive_dual(w, idx, iz1:iz2)
 
@@ -549,7 +549,7 @@ References:
     Lawson, C.L. and R.J. Hanson, Solving Least-Squares Problems,
     Prentice-Hall, Chapter 23, p. 161, 1974.
 """
-function nnls(A::AbstractMatrix{T},
+function nnls(A,
               b::AbstractVector{T};
               max_iter::Int=(3 * size(A, 2))) where {T}
     work = NNLSWorkspace(A, b)
@@ -557,8 +557,8 @@ function nnls(A::AbstractMatrix{T},
     work.x
 end
 
-function nnls(A::Matrix{T},
-              B::Matrix{T};
+function nnls(A,
+              B::AbstractMatrix{T};
               use_parallel = true,
               max_iter::Int=(3 * size(A, 2))) where {T}
 

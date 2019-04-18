@@ -25,9 +25,9 @@ References:
 	Chemometrics 2004; 18: 441-450
 """
 function cssls!(
-	AtA::Matrix{Float64}, # (n x n) matrix
-	AtB::Matrix{Float64}, # (n x p) matrix
-	X::Matrix{Float64},   # (n x p) matrix
+	AtA::AbstractMatrix, # (n x n) matrix
+	AtB::AbstractMatrix, # (n x p) matrix
+	X::AbstractMatrix,   # (n x p) matrix
 	P::AbstractArray{Bool}
 	)
 

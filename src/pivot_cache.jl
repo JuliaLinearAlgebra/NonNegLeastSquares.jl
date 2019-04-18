@@ -13,16 +13,16 @@ References:
 	active-set-like method and comparisons, SIAM J. Sci. Comput., 33 (2011),
 	pp. 3261–3281.
 """
-function pivot_cache(AtA::Matrix{Float64},
-                    Atb::Vector{Float64};
+function pivot_cache(AtA,
+                    Atb::AbstractVector{T};
                     tol::Float64=1e-8,
-                    max_iter=30*size(AtA,2))
+                    max_iter=30*size(AtA,2)) where {T}
 
 
     # dimensions, initialize solution
     q = size(AtA,1)
 
-    x = zeros(q) # primal variables
+    x = zeros(T, q) # primal variables
     y = -Atb    # dual variables
 
     # parameters for swapping
@@ -32,9 +32,8 @@ function pivot_cache(AtA::Matrix{Float64},
     # Store indices for the passive set, P
     #    we want Y[P] == 0, X[P] >= 0
     #    we want X[~P]== 0, Y[~P] >= 0
-    P = BitArray(undef,q)
+    P = BitArray(false for _ in 1:q)
 
-    x[P] = pinv(AtA[P,P])*Atb[P]
     y[(!).(P)] = AtA[(!).(P),P]*x[P] - Atb[(!).(P)]
 
     # identify indices of infeasible variables
@@ -66,7 +65,9 @@ function pivot_cache(AtA::Matrix{Float64},
 		@__dot__ P = (P & !V) | (V & !P)
 
 		# update primal/dual variables
-        x[P] =  pinv(AtA[P,P])*Atb[P]
+		if !all(!, P)
+        	x[P] = _get_primal_dual(AtA, Atb, P)
+		end
         #x[(!).(P)] = 0.0
         y[(!).(P)] = AtA[(!).(P),P]*x[P] - Atb[(!).(P)]
         #y[P] = 0.0
@@ -76,17 +77,24 @@ function pivot_cache(AtA::Matrix{Float64},
         nV = sum(V)
     end
 
-    x[(!).(P)] .= 0.0
+    x[(!).(P)] .= zero(eltype(x))
     return x
+end
+
+@inline function _get_primal_dual(AtA::SparseArrays.SparseMatrixCSC, Atb, P)
+	return qr(AtA[P,P])\Atb[P]
+end
+@inline function _get_primal_dual(AtA, Atb, P)
+	return pinv(AtA[P,P])*Atb[P]
 end
 
 
 ## if multiple right hand sides are provided, solve each problem separately.
-function pivot_cache(A::Matrix{Float64},
-                     B::Matrix{Float64};
+function pivot_cache(A,
+                     B::AbstractMatrix{T};
                      gram::Bool = false,
                      use_parallel::Bool = true,
-                     kwargs...)
+                     kwargs...) where {T}
 
     n = size(A,2)
     k = size(B,2)
@@ -103,13 +111,13 @@ function pivot_cache(A::Matrix{Float64},
 
     # compute result for each column
     if use_parallel && nprocs()>1
-        X = SharedArray{Float64}(n,k)
+        X = SharedArray{T}(n,k)
         @sync @distributed for i = 1:k
             X[:,i] = pivot_cache(AtA, AtB[:,i]; kwargs...)
         end
         X = convert(Array,X)
     else
-        X = Array{Float64}(undef,n,k)
+        X = Array{T}(undef,n,k)
         for i = 1:k
             X[:,i] = pivot_cache(AtA, AtB[:,i]; kwargs...)
         end
@@ -117,4 +125,3 @@ function pivot_cache(A::Matrix{Float64},
 
     return X
 end
-

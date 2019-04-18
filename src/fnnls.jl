@@ -13,14 +13,14 @@ References:
     Bro R, De Jong S. A fast non-negativitity-constrained least squares
     algorithm. Journal of Chemometrics. 11, 393–401 (1997)
 """
-function fnnls(AtA::Matrix{Float64},
-               Atb::Vector{Float64};
+function fnnls(AtA,
+               Atb::AbstractVector{T};
                tol::Float64=1e-8,
-               max_iter=30*size(AtA,2))
+               max_iter=30*size(AtA,2)) where {T}
 
     n = size(AtA,1)
-    x = zeros(n)
-    s = zeros(n)
+    x = zeros(T, n)
+    s = zeros(T, n)
 
     # P is a bool array storing positive elements of x
     # i.e., x[P] > 0 and x[~P] == 0
@@ -42,7 +42,7 @@ function fnnls(AtA::Matrix{Float64},
 
         # Solve least-squares problem, with zeros for columns/elements not in P
         s[P] = AtA[P,P] \ Atb[P]
-        s[(!).(P)] .= 0.0 # zero out elements not in P
+        s[(!).(P)] .= zero(eltype(s)) # zero out elements not in P
 
         # Inner loop: deal with negative elements of s
         while any(s[P].<=tol)
@@ -66,18 +66,18 @@ function fnnls(AtA::Matrix{Float64},
 
             # Solve least-squares problem again, zeroing nonpositive columns
             s[P] = AtA[P,P] \ Atb[P]
-            s[(!).(P)] .= 0.0 # zero out elements not in P
+            s[(!).(P)] .= zero(eltype(s)) # zero out elements not in P
         end
 
         # update solution
         x = deepcopy(s)
-        w = Atb - AtA*x
+        w .= Atb - AtA*x
     end
     return x
 end
 
-function fnnls(A::Matrix{Float64},
-               B::Matrix{Float64};
+function fnnls(A,
+               B::AbstractMatrix;
                gram::Bool = false,
                use_parallel::Bool = true,
                kwargs...)
@@ -96,13 +96,13 @@ function fnnls(A::Matrix{Float64},
     end
 
     if use_parallel && nprocs()>1
-        X = SharedArray{Float64}(n,k)
+        X = SharedArray{eltype(B)}(n,k)
         @sync @distributed for i = 1:k
             X[:,i] = fnnls(AtA, AtB[:,i]; kwargs...)
         end
         X = convert(Array,X)
     else
-        X = Array{Float64}(undef,n,k)
+        X = Array{eltype(B)}(undef,n,k)
         for i = 1:k
             X[:,i] = fnnls(AtA, AtB[:,i]; kwargs...)
         end

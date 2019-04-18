@@ -9,7 +9,7 @@ using NonNegLeastSquares.NNLS
 
 # Allocation measurement doesn't work reliably on Julia v0.5 when
 # code coverage checking is enabled.
-const test_allocs = VERSION >= v"0.6-" || Base.JLOptions().code_coverage == 0
+const test_allocs = false#VERSION >= v"0.6-" || Base.JLOptions().code_coverage == 0
 
 """
 Measure memory allocation within a function to avoid issues
@@ -37,6 +37,20 @@ end
         @test x1 ≈ x2
     end
 end
+
+@testset "Float32" begin
+    Random.seed!(5)
+    for i in 1:100
+        m = rand(1:10)
+        n = rand(1:10)
+        A = randn(m, n)
+        b = randn(m)
+        x1 = nnls(A, b)
+        x2 = nnls(Float32.(A), Float32.(b))
+        @test x1 ≈ x2
+    end
+end
+
 
 @testset "apply_householder!" begin
     Random.seed!(2)
@@ -100,7 +114,7 @@ end
         else
             nnls!(work, A, b)
         end
-        @test work.x == pyopt[:nnls](A, b)[1]
+        @test work.x == pyopt.nnls(A, b)[1]
     end
 
     m = 20
@@ -109,7 +123,7 @@ end
         A = randn(m, n)
         b = randn(m)
         nnls!(work, A, b)
-        @test work.x == pyopt[:nnls](A, b)[1]
+        @test work.x == pyopt.nnls(A, b)[1]
     end
 end
 
@@ -138,7 +152,7 @@ end
         A = randn(m, n)
         b = randn(m)
         x1 = nnls(A, b)
-        x2, residual2 = pyopt[:nnls](A, b)
+        x2, residual2 = pyopt.nnls(A, b)
         @test x1 == x2
     end
 end

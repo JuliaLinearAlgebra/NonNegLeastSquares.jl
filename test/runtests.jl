@@ -1,12 +1,13 @@
 using Test
 using LinearAlgebra
 using NonNegLeastSquares
+using SparseArrays
 using PyCall
 const pyopt = pyimport_conda("scipy.optimize", "scipy")
 
 function test_algorithm(fh, ε=1e-5)
-	# Solve A*x = b for x, subject to x >=0 
-	A = [ 0.53879488  0.65816267 
+	# Solve A*x = b for x, subject to x >=0
+	A = [ 0.53879488  0.65816267
 	      0.12873446  0.98669198
 	      0.24555042  0.00598804
 	      0.80491791  0.32793762 ]
@@ -30,7 +31,7 @@ function test_algorithm(fh, ε=1e-5)
 		m,n = rand(1:10),rand(1:10)
 		A3 = randn(m,n)
 		b3 = randn(m)
-		x3,resid = pyopt[:nnls](A3,b3)
+		x3,resid = pyopt.nnls(A3,b3)
 		if resid > ε
 	        @test norm(fh(A3,b3)-x3) < ε
 	    else
@@ -57,4 +58,7 @@ for (f, ε) in zip(algs, errs)
  	println("done")
 end
 
-include("nnls_test.jl")
+@testset "NNLS" begin include("nnls_test.jl") end
+@testset "FNNLS" begin include("fnnls_test.jl") end
+@testset "Pivot" begin include("pivot_test.jl") end
+@testset "Sparse" begin include("sparse_test.jl") end

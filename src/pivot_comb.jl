@@ -14,10 +14,10 @@ References:
     active-set-like method and comparisons, SIAM J. Sci. Comput., 33 (2011),
     pp. 3261–3281.
 """
-function pivot_comb(A::Matrix{Float64},
-               B::Matrix{Float64};
+function pivot_comb(A,
+               B::AbstractMatrix{T};
                tol::Float64=1e-8,
-               max_iter=30*size(A,2))
+               max_iter=30*size(A,2)) where {T}
 
     # precompute constant portion of pseudoinverse
     AtA = A'*A
@@ -25,7 +25,7 @@ function pivot_comb(A::Matrix{Float64},
 
     # dimensions, initialize solution
     q,r = size(AtB)
-    X = zeros(q,r) # primal variables
+    X = zeros(T, q,r) # primal variables
     Y = -AtB       # dual variables
 
     # parameters for swapping
