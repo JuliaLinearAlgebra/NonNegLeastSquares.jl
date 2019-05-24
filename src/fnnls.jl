@@ -24,14 +24,14 @@ function fnnls(AtA,
 
     # P is a bool array storing positive elements of x
     # i.e., x[P] > 0 and x[~P] == 0
-    P = x .> tol
+    P = zeros(Bool, n)
     w = Atb - AtA*x
 
     # We have reached an optimum when either:
     #   (a) all elements of x are positive (no nonneg constraints activated)
     #   (b) ∂f/∂x = A' * (b - A*x) > 0 for all nonpositive elements of x
     iter = 0
-    while sum(P)<n && any(w[(!).(P)] .> tol) && iter < max_iter
+    while sum(P) < n && any(w[(!).(P)] .> tol) && iter < max_iter
 
         # find i that maximizes w, restricting i to indices not in P
         # Note: the while loop condition guarantees at least one w[~P]>0
@@ -70,7 +70,7 @@ function fnnls(AtA,
         end
 
         # update solution
-        x = deepcopy(s)
+        x .= s
         w .= Atb - AtA*x
     end
     return x
