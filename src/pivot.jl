@@ -91,11 +91,9 @@ function pivot(A,
 
     # compute result for each column
     if use_parallel && nprocs()>1
-        X = SharedArray{T}(n,k)
-        @sync @distributed for i = 1:k
-            X[:,i] = pivot(A, B[:,i]; kwargs...)
+        X = @distributed (hcat) for i = 1:k
+            pivot(A, B[:,i]; kwargs...)
         end
-        X = convert(Array,X)
     else
         X = Array{T}(undef,n,k)
         for i = 1:k
