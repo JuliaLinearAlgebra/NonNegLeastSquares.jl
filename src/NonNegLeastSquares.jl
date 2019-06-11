@@ -5,7 +5,6 @@ module NonNegLeastSquares
 using Compat
 using Distributed
 using LinearAlgebra
-using SharedArrays
 import SparseArrays
 
 export nonneg_lsq

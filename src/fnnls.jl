@@ -96,11 +96,9 @@ function fnnls(A,
     end
 
     if use_parallel && nprocs()>1
-        X = SharedArray{eltype(B)}(n,k)
-        @sync @distributed for i = 1:k
-            X[:,i] = fnnls(AtA, AtB[:,i]; kwargs...)
+        X = @distributed (hcat) for i=1:k
+            fnnls(AtA, AtB[:,i]; kwargs...)
         end
-        X = convert(Array,X)
     else
         X = Array{eltype(B)}(undef,n,k)
         for i = 1:k

@@ -111,11 +111,9 @@ function pivot_cache(A,
 
     # compute result for each column
     if use_parallel && nprocs()>1
-        X = SharedArray{T}(n,k)
-        @sync @distributed for i = 1:k
-            X[:,i] = pivot_cache(AtA, AtB[:,i]; kwargs...)
+        X = @distributed (hcat) for i = 1:k
+            pivot_cache(AtA, AtB[:,i]; kwargs...)
         end
-        X = convert(Array,X)
     else
         X = Array{T}(undef,n,k)
         for i = 1:k
