@@ -8,6 +8,8 @@ in Kim & Park (2011).
 Optional arguments:
     tol: tolerance for nonnegativity constraints
     max_iter: maximum number of iterations
+    P_init: Passive set to use at initialization
+    return P: boolean, returns passive set when true
 
 References:
     J. Kim and H. Park, Fast nonnegative matrix factorization: An
@@ -17,7 +19,9 @@ References:
 function pivot_comb(A,
                B::AbstractMatrix{T};
                tol::Float64=1e-8,
-               max_iter=30*size(A,2)) where {T}
+               max_iter=30*size(A,2),
+               P_init=nothing,
+               return_P=false) where {T}
 
     # precompute constant portion of pseudoinverse
     AtA = A'*A
@@ -35,7 +39,12 @@ function pivot_comb(A,
     # Store indices for the passive set, P
     #    we want Y[P] == 0, X[P] >= 0
     #    we want X[~P]== 0, Y[~P] >= 0
-    P = zeros(Bool,q,r)
+    # Warm starting amounts to initializing the
+    # active and passive sets.
+    if P_init === nothing
+        P_init = zeros(Bool,q,r)
+    end
+    P = P_init
 
     # Update primal and dual variables
     cssls!(AtA,AtB,X,P) # overwrite X[P]
@@ -93,5 +102,8 @@ function pivot_comb(A,
     end
 
     X[(!).(P)] .= 0.0
+    if return_P
+        return X, P
+    end
     return X
 end
