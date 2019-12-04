@@ -2,6 +2,9 @@ using Test
 using LinearAlgebra
 using NonNegLeastSquares
 using SparseArrays
+
+#test specific
+using Random
 using PyCall
 const pyopt = pyimport_conda("scipy.optimize", "scipy")
 
