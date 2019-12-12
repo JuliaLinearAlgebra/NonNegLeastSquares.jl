@@ -1,12 +1,4 @@
-module NnlsTest
-
-using Test
-using LinearAlgebra
-using Random
-using PyCall
-const pyopt = pyimport_conda("scipy.optimize", "scipy")
-using NonNegLeastSquares.NNLS
-
+import NonNegLeastSquares.NNLS
 # Allocation measurement doesn't work reliably on Julia v0.5 when
 # code coverage checking is enabled.
 const test_allocs = false#VERSION >= v"0.6-" || Base.JLOptions().code_coverage == 0
@@ -94,8 +86,8 @@ if test_allocs
             n = rand(20:100)
             A = randn(m, n)
             b = randn(m)
-            work = NNLSWorkspace(A, b)
-            @test @wrappedallocs(nnls!(work)) == 0
+            work = NNLS.NNLSWorkspace(A, b)
+            @test @wrappedallocs(NNLS.nnls!(work)) == 0
         end
     end
 end
@@ -104,15 +96,15 @@ end
     Random.seed!(200)
     m = 10
     n = 20
-    work = NNLSWorkspace(m, n)
-    nnls!(work, randn(m, n), randn(m))
+    work = NNLS.NNLSWorkspace(m, n)
+    NNLS.nnls!(work, randn(m, n), randn(m))
     for i in 1:100
         A = randn(m, n)
         b = randn(m)
         if test_allocs
-            @test @wrappedallocs(nnls!(work, A, b)) == 0
+            @test @wrappedallocs(NNLS.nnls!(work, A, b)) == 0
         else
-            nnls!(work, A, b)
+            NNLS.nnls!(work, A, b)
         end
         @test work.x == pyopt.nnls(A, b)[1]
     end
@@ -122,7 +114,7 @@ end
     for i in 1:100
         A = randn(m, n)
         b = randn(m)
-        nnls!(work, A, b)
+        NNLS.nnls!(work, A, b)
         @test work.x == pyopt.nnls(A, b)[1]
     end
 end
@@ -133,14 +125,14 @@ if test_allocs
         n = 20
         A = randn(m, n)
         b = randn(m)
-        work = NNLSWorkspace(A, b, Int32)
+        work = NNLS.NNLSWorkspace(A, b, Int32)
         # Compile
-        nnls!(work)
+        NNLS.nnls!(work)
 
         A = randn(m, n)
         b = randn(m)
-        work = NNLSWorkspace(A, b, Int32)
-        @test @wrappedallocs(nnls!(work)) == 0
+        work = NNLS.NNLSWorkspace(A, b, Int32)
+        @test @wrappedallocs(NNLS.nnls!(work)) == 0
     end
 end
 
@@ -153,8 +145,6 @@ end
         b = randn(m)
         x1 = nnls(A, b)
         x2, residual2 = pyopt.nnls(A, b)
-        @test x1 == x2
+        @test vec(x1) ≈ x2
     end
-end
-
 end

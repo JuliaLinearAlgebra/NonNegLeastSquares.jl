@@ -66,7 +66,11 @@ function pivot(A,
 
 		# update primal/dual variables
 		if !all(!, P)
-			x[P] =  A[:,P] \ b
+                    if VERSION < v"1.2"
+                        x[P] =  Array(A[:,P]) \ b
+                    else
+                        x[P] =  A[:,P] \ b
+                    end
 		end
 		y[(!).(P)] =  A[:,(!).(P)]' * ((A[:,P]*x[P]) - b)
 

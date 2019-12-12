@@ -66,7 +66,7 @@ function pivot_cache(AtA,
 
 		# update primal/dual variables
 		if !all(!, P)
-        	x[P] = _get_primal_dual(AtA, Atb, P)
+                    x[P] = _get_primal_dual(AtA, Atb, P)
 		end
         #x[(!).(P)] = 0.0
         y[(!).(P)] = AtA[(!).(P),P]*x[P] - Atb[(!).(P)]
@@ -82,7 +82,11 @@ function pivot_cache(AtA,
 end
 
 @inline function _get_primal_dual(AtA::SparseArrays.SparseMatrixCSC, Atb, P)
-	return qr(AtA[P,P])\Atb[P]
+    if VERSION < v"1.2"
+        return pinv(Array(AtA[P,P]))*Atb[P]
+    else
+        return qr(AtA[P,P]) \ Atb[P]
+    end
 end
 @inline function _get_primal_dual(AtA, Atb, P)
 	return pinv(AtA[P,P])*Atb[P]

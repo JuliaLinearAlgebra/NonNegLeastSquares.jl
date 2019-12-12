@@ -2,7 +2,6 @@ isdefined(Base, :__precompile__) && __precompile__()
 
 module NonNegLeastSquares
 
-using Compat
 using Distributed
 using LinearAlgebra
 import SparseArrays

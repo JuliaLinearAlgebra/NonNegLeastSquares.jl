@@ -1,8 +1,3 @@
-using Test
-using LinearAlgebra
-using NonNegLeastSquares
-using PyCall
-
 # wrapper functions for convienence
 nnls(A,b) = nonneg_lsq(A,b;alg=:nnls)
 fnnls(A,b;gram=false) = nonneg_lsq(A,b;alg=:fnnls,gram=gram)

@@ -1,8 +1,3 @@
-using Test
-using LinearAlgebra
-using NonNegLeastSquares
-using PyCall
-
 # wrapper functions for convienence
 nnls(A,b) = nonneg_lsq(A,b;alg=:nnls)
 pivot(A,b) = nonneg_lsq(A,b;alg=:pivot)
