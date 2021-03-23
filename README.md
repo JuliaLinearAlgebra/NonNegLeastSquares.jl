@@ -101,12 +101,14 @@ PIVOT:comb →   0.096450 seconds (586.76 k allocations: 23.569 MB, 3.01% gc tim
 
 Pull requests are more than welcome, whether it is improving existing algorithms, or implementing new ones.
 
-* [ftp://net9.cs.utexas.edu/pub/techreports/tr06-54.pdf](ftp://net9.cs.utexas.edu/pub/techreports/tr06-54.pdf)
+* https://www.cs.utexas.edu/ftp/techreports/tr06-54.pdf
 * Sra Suvrit Kim Dongmin and Inderjit S. Dhillon.
 [A non-monotonic method for large-scale non-negative least squares.](https://doi.org/10.1080/10556788.2012.656368)
 Optimization Methods and Software, 28(5):1012–1039, 2013.
 
+
 ### See also:
+
 * The box constrained optimization methods in
 [Optim.jl](https://github.com/JuliaNLSolvers/Optim.jl)
 * The bound constrained methods in
