@@ -1,19 +1,19 @@
 """
-cssls!(AtA,AtB,X,P)
+    cssls!(AtA,AtB,X,P)
 
-Solve combinatorial subspace least squares (CSSLS) problem. Find X[P] that
-minimizes ||A*X[P] - B[P]|| in the least squares sense, where P is a
-1-bit matrix encoding the combinatorial subspace. Input X is overwritten
+Solve combinatorial subspace least squares (CSSLS) problem. Find `X[P]` that
+minimizes `||A*X[P] - B[P]||` in the least squares sense, where `P` is a
+1-bit matrix encoding the combinatorial subspace. Input `X` is overwritten
 with the solution.
 
-In the context of nonnegative least squares, each column of X has a passive
-set which is encoded by "true" entries in P, and an active set which is encoded
-by "false" entries in P.
+In the context of nonnegative least squares, each column of `X` has a passive
+set which is encoded by "true" entries in `P`,
+and an active set which is encoded by "false" entries in `P`.
 
 Inputs:
-	AtA = A' * A = (n x n) matrix
-	AtB = A' * B = (n x k)
-	P = 1-bit matrix of Bools = (? x ?) matrix
+* `AtA = A' * A = (n x n)` matrix
+* `AtB = A' * B = (n x k)`
+* `P` = 1-bit matrix of Bools = (? x ?) matrix
 
 References:
 	J. Kim and H. Park, Fast nonnegative matrix factorization: An
