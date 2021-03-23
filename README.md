@@ -101,7 +101,9 @@ PIVOT:comb →   0.096450 seconds (586.76 k allocations: 23.569 MB, 3.01% gc tim
 
 Pull requests are more than welcome, whether it is improving existing algorithms, or implementing new ones.
 
-* https://www.cs.utexas.edu/ftp/techreports/tr06-54.pdf
+* Dongmin Kim, Suvrit Sra, and Inderjit S. Dhillon:
+[A New Projected Quasi-Newton Approach for the Nonnegative Least Squares Problem](https://www.cs.utexas.edu/ftp/techreports/tr06-54.pdf).
+UT Austin TR-06-54, circa 2007.
 * Sra Suvrit Kim Dongmin and Inderjit S. Dhillon.
 [A non-monotonic method for large-scale non-negative least squares.](https://doi.org/10.1080/10556788.2012.656368)
 Optimization Methods and Software, 28(5):1012–1039, 2013.
