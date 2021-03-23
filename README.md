@@ -1,7 +1,7 @@
 [![build-status][build-img]][build-url]
 [![codecov][codecov-img]][codecov-url]
 [![coveralls][coveralls-img]][coveralls-url]
-[![license][license-img]][LICENSE.md]
+[![license][license-img]][license-url]
 
 # NonNegLeastSquares.jl
 Some nonnegative least squares solvers in Julia.
@@ -10,11 +10,14 @@ Some nonnegative least squares solvers in Julia.
 
 The command `X = nonneg_lsq(A,B)` solves the optimization problem:
 
-Minimize `||A*X - B||` subject to `Xᵢⱼ >= 0`; in this case, `||.||` denotes the Frobenius norm (equivalently, the Euclidean norm if `B` is a column vector). The arguments `A` and `B` are respectively (m x k) and (m x n) matrices, so `X` is a (k x n) matrix.
+Minimize `||A*X - B||` subject to `Xᵢⱼ >= 0`; in this case,
+where `||.||` denotes the Frobenius norm (equivalently, the Euclidean norm if `B` is a column vector).
+The arguments `A` and `B` are respectively (m × k) and (m × n) matrices, so `X` is a (k × n) matrix.
 
 ### Currently Implemented Algorithms:
 
-The code defaults to the "Pivot Method" algorithm. To specify a different algorithm, use the keyword argument `alg`. Currently implemented algorithms are:
+The code defaults to the "Pivot Method" algorithm.
+To specify a different algorithm, use the keyword argument `alg`. Currently implemented algorithms are:
 
 ```julia
 nonneg_lsq(A,b;alg=:nnls)  # NNLS
@@ -98,7 +101,7 @@ PIVOT:comb →   0.096450 seconds (586.76 k allocations: 23.569 MB, 3.01% gc tim
 
 Pull requests are more than welcome, whether it is improving existing algorithms, or implementing new ones.
 
-* ftp://net9.cs.utexas.edu/pub/techreports/tr06-54.pdf
+* [ftp://net9.cs.utexas.edu/pub/techreports/tr06-54.pdf](ftp://net9.cs.utexas.edu/pub/techreports/tr06-54.pdf)
 * Sra Suvrit Kim Dongmin and Inderjit S. Dhillon.
 [A non-monotonic method for large-scale non-negative least squares.](https://doi.org/10.1080/10556788.2012.656368)
 Optimization Methods and Software, 28(5):1012–1039, 2013.
@@ -117,3 +120,4 @@ Optimization Methods and Software, 28(5):1012–1039, 2013.
 [coveralls-img]: https://coveralls.io/repos/ahwillia/NonNegLeastSquares.jl/badge.svg?branch=master
 [coveralls-url]: https://coveralls.io/github/ahwillia/NonNegLeastSquares.jl?branch=master
 [license-img]: http://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat
+[license-url]: LICENSE.md
