@@ -1,13 +1,13 @@
 """
-x = fnnls(AtA, Atb; ...)
+    x = fnnls(AtA, Atb; ...)
 
-Returns x that solves A*x = b in the least-squares sense, subject to x >=0. The
-inputs are the cross-products AtA = A'*A and Atb = A'*b. Uses the modified
-active set method of Bro and De Jong (1997).
+Returns `x` that solves `A*x = b` in the least-squares sense, subject to `x >=0`.
+The inputs are the cross-products `AtA = A'*A` and `Atb = A'*b`.
+Uses the modified active set method of Bro and De Jong (1997).
 
 Optional arguments:
-    tol: tolerance for nonnegativity constraints
-    max_iter: maximum number of iterations (counts inner loop iterations)
+* `tol`: tolerance for nonnegativity constraints
+* `max_iter`: maximum number of iterations (counts inner loop iterations)
 
 References:
     Bro R, De Jong S. A fast non-negativitity-constrained least squares

@@ -1,5 +1,9 @@
 isdefined(Base, :__precompile__) && __precompile__()
 
+"""
+    NonNegLeastSquares
+Nonnegative least squares
+"""
 module NonNegLeastSquares
 
 using Distributed
