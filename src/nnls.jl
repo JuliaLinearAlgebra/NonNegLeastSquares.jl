@@ -535,14 +535,15 @@ function nnls!(work::NNLSWorkspace{T},
     work.x
 end
 
+
 """
-x = nnls(A, b; ...)
+    x = nnls(A, b; ...)
 
 Solves non-negative least-squares problem by the active set method
 of Lawson & Hanson (1974).
 
 Optional arguments:
-    max_iter: maximum number of iterations (counts inner loop iterations)
+* `max_iter`: maximum number of iterations (counts inner loop iterations)
 
 References:
     Lawson, C.L. and R.J. Hanson, Solving Least-Squares Problems,
