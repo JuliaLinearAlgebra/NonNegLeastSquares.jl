@@ -21,8 +21,8 @@ function pivot(A,
 
     # dimensions, initialize solution
     p,q = size(A)
-
-    x = zeros(T, q) # primal variables
+    Tx = typeof(oneunit(T)/oneunit(eltype(A)))
+    x = zeros(Tx, q) # primal variables
     y = -A'*b    # dual variables
 
     # parameters for swapping

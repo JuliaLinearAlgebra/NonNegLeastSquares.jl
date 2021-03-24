@@ -18,9 +18,10 @@ function fnnls(AtA,
                tol::Float64=1e-8,
                max_iter=30*size(AtA,2)) where {T}
 
+    XT=typeof(oneunit(T)/oneunit(eltype(AtA)))
     n = size(AtA,1)
-    x = zeros(T, n)
-    s = zeros(T, n)
+    x = zeros(XT, n)
+    s = zeros(XT, n)
 
     # P is a bool array storing positive elements of x
     # i.e., x[P] > 0 and x[~P] == 0

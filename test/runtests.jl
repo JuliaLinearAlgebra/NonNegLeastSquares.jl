@@ -6,6 +6,9 @@ using SparseArrays
 #test specific
 using Random
 using PyCall
+using ForwardDiff
+using Unitful
+
 const pyopt = pyimport_conda("scipy.optimize", "scipy")
 
 function test_algorithm(fh, ε=1e-5)
@@ -65,3 +68,4 @@ end
 @testset "FNNLS" begin include("fnnls_test.jl") end
 @testset "Pivot" begin include("pivot_test.jl") end
 @testset "Sparse" begin include("sparse_test.jl") end
+@testset "ForwardDiff" begin include("forwarddiff_test.jl") end
