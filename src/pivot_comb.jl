@@ -1,23 +1,27 @@
 """
-x = pivot_comb(A, b; ...)
+    x = pivot_comb(A, b; ...)
 
 Solves non-negative least-squares problem by block principal pivoting method
 with combinatorial grouping of least-squares problems. Algorithm 2 described
 in Kim & Park (2011).
 
 Optional arguments:
-    tol: tolerance for nonnegativity constraints
-    max_iter: maximum number of iterations
+* `tol`: tolerance for nonnegativity constraints; default: `1e-8`
+* `max_iter`: maximum number of iterations; default: `30*size(A,2)`
+* `P`: initial guess of passive set; default: `falses(size(A,2), size(B,2))`
 
 References:
     J. Kim and H. Park, Fast nonnegative matrix factorization: An
     active-set-like method and comparisons, SIAM J. Sci. Comput., 33 (2011),
     pp. 3261–3281.
 """
-function pivot_comb(A,
-               B::AbstractMatrix{T};
-               tol::Float64=1e-8,
-               max_iter=30*size(A,2)) where {T}
+function pivot_comb(
+    A,
+    B::AbstractMatrix{T};
+    tol::Float64=1e-8,
+    max_iter=30*size(A,2),
+    P::AbstractMatrix{Bool} = falses(size(A,2), size(B,2)),
+) where {T}
 
     # precompute constant portion of pseudoinverse
     AtA = A'*A
@@ -26,7 +30,7 @@ function pivot_comb(A,
     # dimensions, initialize solution
     q,r = size(AtB)
     X = zeros(T, q,r) # primal variables
-    Y = -AtB       # dual variables
+#   Y = -AtB       # dual variables
 
     # parameters for swapping
     α = ones(r)*3
@@ -35,7 +39,7 @@ function pivot_comb(A,
     # Store indices for the passive set, P
     #    we want Y[P] == 0, X[P] >= 0
     #    we want X[~P]== 0, Y[~P] >= 0
-    P = zeros(Bool,q,r)
+#   P = zeros(Bool,q,r) # initialized above
 
     # Update primal and dual variables
     cssls!(AtA,AtB,X,P) # overwrite X[P]
