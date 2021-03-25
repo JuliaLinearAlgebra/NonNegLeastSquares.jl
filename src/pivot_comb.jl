@@ -84,7 +84,7 @@ function pivot_comb(
         # Update passive set
         #     P & ~V removes infeasible variables from P
         #     V & ~P moves infeasible variables to the
-        @. P! = (P! & !V) | (V! & !(P!))
+        @. P! = (P! & !V) | (V & !(P!))
 
         # Update primal and dual variables
         cssls!(AtA, AtB, X, P!) # overwrite X[P]
