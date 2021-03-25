@@ -1,6 +1,6 @@
 name = "NonNegLeastSquares"
 uuid = "b7351bd1-99d9-5c5d-8786-f205a815c4d7"
-version = "0.2.0"
+version = "0.3.0"
 
 [deps]
 Distributed = "8ba89e20-285c-5b6f-9357-94700520ee1b"
