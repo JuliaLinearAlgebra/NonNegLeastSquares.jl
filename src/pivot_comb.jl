@@ -8,7 +8,8 @@ in Kim & Park (2011).
 Optional arguments:
 * `tol`: tolerance for nonnegativity constraints; default: `1e-8`
 * `max_iter`: maximum number of iterations; default: `30*size(A,2)`
-* `P`: initial guess of passive set; default: `falses(size(A,2), size(B,2))`
+* `P!`: initial guess of passive set; default: `falses(size(A,2), size(B,2))`
+Alert: this optional argument, if provided, is mutated to become the final passive set.
 
 References:
     J. Kim and H. Park, Fast nonnegative matrix factorization: An
@@ -20,7 +21,7 @@ function pivot_comb(
     B::AbstractMatrix{T};
     tol::Float64=1e-8,
     max_iter=30*size(A,2),
-    P::AbstractMatrix{Bool} = falses(size(A,2), size(B,2)),
+    P!::AbstractMatrix{Bool} = falses(size(A,2), size(B,2)),
 ) where {T}
 
     # precompute constant portion of pseudoinverse
@@ -42,13 +43,13 @@ function pivot_comb(
 #   P = zeros(Bool,q,r) # initialized above
 
     # Update primal and dual variables
-    cssls!(AtA,AtB,X,P) # overwrite X[P]
+    cssls!(AtA, AtB, X, P!) # overwrite X[P]
     Y = AtA*X - AtB
 
     # identify infeasible columns of X
     infeasible_cols = Array{Bool}(undef,size(X,2))
 
-    V = @. (P & (X < -tol)) | (!P & (Y < -tol)) # infeasible variables
+    V = @. (P! & (X < -tol)) | (!(P!) & (Y < -tol)) # infeasible variables
     any!(infeasible_cols, V') # collapse each column
 
     # while infeasible
@@ -83,19 +84,19 @@ function pivot_comb(
         # Update passive set
         #     P & ~V removes infeasible variables from P
         #     V & ~P moves infeasible variables to the
-        @. P = (P & !V) | (V & !P)
+        @. P! = (P! & !V) | (V! & !(P!))
 
         # Update primal and dual variables
-        cssls!(AtA,AtB,X,P) # overwrite X[P]
-        X[(!).(P)] .= 0.0
+        cssls!(AtA, AtB, X, P!) # overwrite X[P]
+        X[(!).(P!)] .= 0.0
         Y[:,infeasible_cols] = AtA*X[:,infeasible_cols] - AtB[:,infeasible_cols]
-        Y[P] .= 0.0
+        Y[P!] .= 0.0
 
         # identify infeasible columns of X
-        @. V = (P & (X < -tol)) | (!P & (Y < -tol)) # infeasible variables
+        @. V = (P! & (X < -tol)) | (!(P!) & (Y < -tol)) # infeasible variables
         any!(infeasible_cols, V') # collapse each column
     end
 
-    X[(!).(P)] .= 0.0
+    X[(!).(P!)] .= 0.0
     return X
 end
