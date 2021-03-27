@@ -1,6 +1,6 @@
 using Test
-using LinearAlgebra
-using NonNegLeastSquares
+using LinearAlgebra: norm
+using NonNegLeastSquares: nonneg_lsq
 using SparseArrays
 
 #test specific
@@ -8,7 +8,7 @@ using Random
 using PyCall
 const pyopt = pyimport_conda("scipy.optimize", "scipy")
 
-function test_algorithm(fh, ε=1e-5)
+function test_algorithm(fh::Function; ε::Real=1e-5)
 	# Solve A*x = b for x, subject to x >=0
 	A = [ 0.53879488  0.65816267
 	      0.12873446  0.98669198
@@ -38,7 +38,7 @@ function test_algorithm(fh, ε=1e-5)
 		if resid > ε
 	        @test norm(fh(A3,b3)-x3) < ε
 	    else
-	    	@test norm(A3*fh(A3,b3)-b3) < ε
+	        @test norm(A3*fh(A3,b3)-b3) < ε
 	    end
 	end
 end
@@ -55,10 +55,14 @@ algs = [nnls, nnls_gram, fnnls, fnnls_gram, pivot, pivot_comb, pivot_cache]
 errs = fill(1e-5, length(algs))
 
 for (f, ε) in zip(algs, errs)
- 	print("testing ")
- 	@show f
- 	test_algorithm(f, ε)
- 	println("done")
+    print("testing ")
+    @show f
+    test_algorithm(f; ε)
+    println("done")
+end
+
+@testset "comb" begin
+#   x1 = nonneg_lsq(A, b; alg=:pivot, variant=:comb, P!=falses(size(A,2)))
 end
 
 @testset "NNLS" begin include("nnls_test.jl") end
