@@ -13,6 +13,7 @@ Optional arguments
     :fnnls - Fast active-set method (Bro & De Jong, 1997)
     :nnls - Classic active-set method (Lawson & Hanson, 1974)
     :admm - Alternating Direction Method of Multipliers (e.g., Boyd et al., 2011)
+    :cd - Coordinate Descent (lost reference...)
 
 **variant:** a symbol specifying the variant, if applicable,
 
@@ -59,6 +60,10 @@ function nonneg_lsq(
         return pivot_comb(A, B; kwargs...)
     elseif alg == :pivot
         return pivot(A, B; kwargs...)
+    # elseif alg == :admm
+    #     return admm(A, B, kwargs...)
+    elseif alg == :cd
+        return coord_desc(A, B; kwargs...)
     else
         throw(ArgumentError("Specified algorithm $alg not recognized."))
     end

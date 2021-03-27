@@ -17,7 +17,7 @@ References:
 """
 function admm(A,
               B::AbstractMatrix;
-              ρ=max(1.0, vecnorm(A)^2/size(A,2)),
+              ρ=max(1.0, norm(A)^2/size(A,2)),
               ε=sqrt(size(A,2)*size(B,2))*1e-15,
               max_iter=1000*size(A,2),
               kwargs...)
@@ -30,7 +30,7 @@ function admm(A,
     AtB = A'*B
 
     # Cache cholesky factorization
-    L = cholfact(A'*A + ρ*I)
+    L = cholesky(A'*A + ρ*I)
 
     # Initialize variables
     Z,U = zeros(k,n),zeros(k,n)
@@ -44,7 +44,9 @@ function admm(A,
         Z = max(0,X+U)
         U = U+X-Z
         X = L \ (AtB+ρ*(Z-U))
-        vecnorm(X-Z) < ε && break
+        #vec norm deprecated in 0.7
+        println(size(norm(X-Z)))
+        norm(X-Z) < ε && break
     end
 
     return max(0, X)
