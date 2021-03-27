@@ -77,7 +77,7 @@ end
     x1 = nonneg_lsq(A, b; alg=:pivot, variant=:comb, P! = P!)
     @test x0 == x1
     @test P! != falses(size(A,2),1)
-    @test x0[(!).(P!)] .== 0
+    @test all(x0[(!).(P!)] .== 0)
 end
 
 @testset "NNLS" begin include("nnls_test.jl") end
