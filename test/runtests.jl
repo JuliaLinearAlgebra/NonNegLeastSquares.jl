@@ -62,7 +62,11 @@ for (f, ε) in zip(algs, errs)
 end
 
 @testset "comb" begin
-#   x1 = nonneg_lsq(A, b; alg=:pivot, variant=:comb, P!=falses(size(A,2)))
+    x0 = pivot_comb(A, b)
+    x1 = nonneg_lsq(A, b; alg=:pivot, variant=:comb, P!=falses(size(A,2),1))
+    @test x0 == x1
+    @test P! != falses(size(A,2),1)
+    @test x0[(!).(P!)] .== 0
 end
 
 @testset "NNLS" begin include("nnls_test.jl") end
