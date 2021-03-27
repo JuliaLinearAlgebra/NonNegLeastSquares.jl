@@ -60,9 +60,10 @@ function nonneg_lsq(
     elseif alg == :pivot
         return pivot(A, B; kwargs...)
     else
-        error("Specified algorithm :",alg," not recognized.")
+        throw(ArgumentError("Specified algorithm $alg not recognized."))
     end
 end
 
 # If second input is a vector, convert it to a matrix
-nonneg_lsq(A, b::AbstractVector; kwargs...) = nonneg_lsq(A, b[:,:]; kwargs...)
+nonneg_lsq(A, b::AbstractVector; kwargs...) =
+    nonneg_lsq(A, reshape(b, length(b), 1); kwargs...)
