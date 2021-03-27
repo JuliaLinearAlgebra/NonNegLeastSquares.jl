@@ -30,7 +30,7 @@ function test_case2()
     return A, b, x
 end
 
-function test_algorithm(fh::Function; ε::Real=1e-5)
+function test_algorithm(fh::Function, ε::Real=1e-5)
     # Solve A*x = b for x, subject to x >=0
     A, b, x = test_case1()
     @test norm(fh(A,b) - x) < ε
@@ -66,7 +66,7 @@ errs = fill(1e-5, length(algs))
 for (f, ε) in zip(algs, errs)
     print("testing ")
     @show f
-    test_algorithm(f; ε)
+    test_algorithm(f, ε)
     println("done")
 end
 
