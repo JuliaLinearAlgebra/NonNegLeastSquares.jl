@@ -2,18 +2,18 @@
 **x = nonneg_lsq(A, B; ...)**
 **x = nonneg_lsq(A'*A, A'*B; gram=true,...)**
 
-Computes the (k-by-n) matrix X with that minimizes vecnorm(A*X - B) subject to
-X >= 0, where A is an (m-by-k) matrix and B is a (m-by-n) matrix.
+Computes a `k × n` matrix `X` that minimizes `|vec(A*X - B)|_2` subject to
+`X >= 0`, where `A` is an `m × k` matrix and `B` is a `m × n` matrix.
 
 Optional arguments
 ------------------
 **alg:** a symbol specifying the algorithm to be used
 
-    :pivot - Block-pivoting active-set-like method (Kim & Park, 2011)
-    :fnnls - Fast active-set method (Bro & De Jong, 1997)
-    :nnls - Classic active-set method (Lawson & Hanson, 1974)
-    :admm - Alternating Direction Method of Multipliers (e.g., Boyd et al., 2011)
-    :cd - Coordinate Descent (lost reference...)
+* `:pivot` - Block-pivoting active-set-like method (Kim & Park, 2011)
+* `:fnnls` - Fast active-set method (Bro & De Jong, 1997)
+* `:nnls` - Classic active-set method (Lawson & Hanson, 1974)
+* `:admm` - Alternating Direction Method of Multipliers (e.g., Boyd et al., 2011)
+* `:cd` - Coordinate Descent (lost reference...)
 
 **variant:** a symbol specifying the variant, if applicable,
 
