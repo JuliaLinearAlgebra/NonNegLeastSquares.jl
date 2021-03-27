@@ -10,19 +10,19 @@ References:
     Reference has been lost...
 """
 
-function coord_desc(A, B; ε = sqrt(size(A,2)*size(B,2))*1e-15, max_iter = 500)
+function coord_desc(A, B; ε = sqrt(size(A,2)*size(B,2))*1e-15, max_iter = 1000)
     rows,vars = size(A)
-    ATA,ATY = transpose(A) * A, transpose(A) * B
+    ATA,ATB = transpose(A) * A, transpose(A) * B
     a = zeros(vars)
-    μ = -ATY
-    Haf = similar(aTB)
-    @inbounds for iter in 1:max_iters
+    μ = -ATB
+    Haf = similar(ATB)
+    @inbounds for iter in 1:max_iter
         Haf .= ATA * a .- ATB
         all(>=(-ε), Haf) && break
         for v in 1:vars
             initial = a[v]
             a[v,1]  = max(a[v] - μ[v] / ATA[v,v], 0.0)
-            ∇       = x[v] - initial
+            ∇       = a[v] - initial
             μ      .+= ∇ .* @views ATA[:,v]
         end
     end

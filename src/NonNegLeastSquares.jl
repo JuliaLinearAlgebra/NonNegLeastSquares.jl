@@ -18,7 +18,7 @@ module NonNegLeastSquares
     include("pivot_comb.jl")
     include("pivot_cache.jl")
     include("admm.jl")
-    include("cd.jl")
+    include("coorddesc.jl")
 
     ## Common interface to algorithms
     include("interface.jl")

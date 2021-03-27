@@ -60,6 +60,8 @@ function nonneg_lsq(
         return pivot_comb(A, B; kwargs...)
     elseif alg == :pivot
         return pivot(A, B; kwargs...)
+    elseif alg == :admm
+        return admm(A, B, kwargs...)
     elseif alg == :cd
         return coord_desc(A, B; kwargs...)
     else
