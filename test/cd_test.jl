@@ -1,5 +1,5 @@
 # wrapper functions for convenience
-nnls(A,b) = nonneg_lsq(A,b;alg=:fnnls)
+nnls(A,b) = nonneg_lsq(A,b;alg=:fnnls, tol=1e-8) # for python comparisons
 cdsc(A,b) = nonneg_lsq(A,b;alg=:cd,max_iter = 2000)
 
 #This test fails for this method...
