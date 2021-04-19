@@ -1,4 +1,4 @@
-# wrapper functions for convienence
+# wrapper functions for convenience
 nnls(A,b) = nonneg_lsq(A,b;alg=:nnls)
 pivot(A,b) = nonneg_lsq(A,b;alg=:pivot)
 

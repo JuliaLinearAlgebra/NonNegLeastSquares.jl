@@ -30,6 +30,13 @@ function test_case2()
     return A, b, x
 end
 
+function test_case3() # non-float
+    A = ones(Int, 4, 3)
+    b = 2*ones(Int, 4)
+    x = 2*ones(Int, 3)
+    return A, b, x
+end
+
 function test_algorithm(fh::Function, ε::Real=1e-5)
     # Solve A*x = b for x, subject to x >=0
     A, b, x = test_case1()
@@ -38,18 +45,18 @@ function test_algorithm(fh::Function, ε::Real=1e-5)
     A, b, x = test_case2()
     @test norm(fh(A,b) - x) < ε
 
-	## Test a bunch of random cases
-	for i = 1:100
-		m,n = rand(1:10),rand(1:10)
-		A3 = randn(m,n)
-		b3 = randn(m)
-		x3,resid = pyopt.nnls(A3,b3)
-		if resid > ε
-	        @test norm(fh(A3,b3) - x3) < ε
-	    else
-	        @test norm(A3*fh(A3,b3) - b3) < ε
-	    end
-	end
+    # Test a bunch of random cases
+    for i = 1:100
+        m,n = rand(1:10),rand(1:10)
+        A3 = randn(m,n)
+        b3 = randn(m)
+        x3,resid = pyopt.nnls(A3,b3)
+        if resid > ε
+            @test norm(fh(A3,b3) - x3) < ε
+        else
+            @test norm(A3*fh(A3,b3) - b3) < ε
+        end
+    end
 end
 
 nnls(A,b) = nonneg_lsq(A, b; alg=:nnls)
@@ -68,6 +75,13 @@ for (f, ε) in zip(algs, errs)
     @show f
     test_algorithm(f, ε)
     println("done")
+end
+
+@testset "pivot_cache-non-float" begin
+    A, b, x = test_case3()
+    xi = pivot_cache(A, b)
+    xf = pivot_cache(Float32.(A), Float32.(b))
+    @test xi ≈ xf
 end
 
 @testset "comb" begin
