@@ -1,4 +1,4 @@
-# wrapper functions for convienence
+# wrapper functions for convenience
 nnls(A,b) = nonneg_lsq(A,b;alg=:fnnls)
 cdsc(A,b) = nonneg_lsq(A,b;alg=:cd,max_iter = 2000)
 
