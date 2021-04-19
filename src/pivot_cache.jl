@@ -5,21 +5,22 @@ Solve non-negative least-squares problem by block principal pivoting method
 (Algorithm 1) described in Kim & Park (2011).
 
 Optional arguments:
-* `tol` tolerance for nonnegativity constraints
- default `10^floor(log10(eps(T)^0.5))` which is `1e-8` for `Float64`
+* `tol` tolerance for nonnegativity constraints;
+ default for `AbstractFloat` types is `10^floor(log10(eps(T)^0.5))`,
+ which is `1e-8` for `Float64`, otherwise reverts to `1e-8`.
 * `max_iter` maximum number of iterations, default `30 * size(A,2)`
 
 References:
     J. Kim and H. Park, Fast nonnegative matrix factorization: An
     active-set-like method and comparisons, SIAM J. Sci. Comput., 33 (2011),
-    pp. 3261–3281.
+    pp. 3261–3281. https://doi.org/10.1137/110821172
 """
 function pivot_cache(
     AtA,
     Atb::AbstractVector{T};
-    tol::Real = 10^floor(log10(eps(T)^0.5)),
+    tol::Real = (T <: AbstractFloat) ? 10^floor(log10(eps(T)^0.5)) : 1e-8,
     max_iter=30 * size(AtA,2),
-) where {T <: AbstractFloat}
+) where {T}
 
     # dimensions, initialize solution
     q = size(AtA,1)
@@ -103,7 +104,7 @@ function pivot_cache(
     gram::Bool = false,
     use_parallel::Bool = true,
     kwargs...
-) where {T <: AbstractFloat}
+) where {T}
 
     n = size(A,2)
     k = size(B,2)
@@ -131,10 +132,4 @@ function pivot_cache(
     end
 
     return X
-end
-
-# for non-float types, promote to Float32 to ensure sensible tol
-function pivot_cache(A, B; kwargs...)
-    T = promote_type(eltype(A), eltype(B), Float32)
-    pivot_cache(T.(A), T.(B); kwargs...)
 end
