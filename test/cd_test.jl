@@ -1,21 +1,27 @@
 # wrapper functions for convenience
-nnls(A,b) = nonneg_lsq(A,b;alg=:fnnls, tol=1e-8) # for python comparisons
-cdsc(A,b) = nonneg_lsq(A,b;alg=:cd,max_iter = 2000)
+nnls(A,b) = nonneg_lsq(A, b; alg=:fnnls)
+cdsc(A,b) = nonneg_lsq(A, b; alg=:cd, max_iter = 2000)
 
-#This test fails for this method...
-# Solve A*x = b for x, subject to x >=0
-# A = [ 0.53879488  0.65816267
-#       0.12873446  0.98669198
-#       0.24555042  0.00598804
-#       0.80491791  0.32793762 ]
+#=
+This test fails for this method...
+Solve A*x = b for x, subject to x >=0
+A = [ 0.53879488  0.65816267
+      0.12873446  0.98669198
+      0.24555042  0.00598804
+      0.80491791  0.32793762 ]
 
-# b = [0.888,  0.562,  0.255,  0.077]
+b = [0.888,  0.562,  0.255,  0.077]
 
-# # Test that nnls produces the same solution as scipy
-# x = [0.15512102, 0.69328985] # approx solution from scipy
-# @test norm(cdsc(A,b)-x) < 1e-5
+# Test that nnls produces the same solution as scipy
+x = [0.15512102, 0.69328985] # approx solution from scipy
+@test norm(A'*(A*x - b)) < 1e-8 # passes, so scipy is fine
 
-## A second test case
+xc = cdsc(A, b)
+@test norm(A'*(A*xc - b)) < 1e-2 # todo: fails
+@test norm(xc-x) < 1e-5 # fails: clearly :cd method is buggy
+=#
+
+# A second test case
 A2 = [ -0.24  -0.82   1.35   0.36   0.35
        -0.53  -0.20  -0.76   0.98  -0.54
         0.22   1.25  -1.60  -1.37  -1.94
@@ -33,6 +39,6 @@ for i = 1:10
   m,n = rand(1:10),rand(1:10)
   A4 = randn(m,n)
   b4 = randn(m)
-  x4 = nnls(A4,b4)
+  x4 = nnls(A4, b4)
   @test norm(cdsc(A4,b4)-x4) < 1e-5
 end
