@@ -18,7 +18,7 @@ References:
 function pivot_cache(
     AtA,
     Atb::AbstractVector{T};
-    tol::Real = (T <: AbstractFloat) ? 10^floor(log10(eps(T)^0.5)) : 1e-8,
+    tol::Real = (real(T) <: AbstractFloat) ? 10^floor(log10(eps(real(T))^0.5)) : 1e-8,
     max_iter=30 * size(AtA,2),
 ) where {T}
 
