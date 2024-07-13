@@ -1,5 +1,5 @@
 using Test
-using LinearAlgebra: norm
+using LinearAlgebra: norm, I
 using NonNegLeastSquares: nonneg_lsq
 using SparseArrays
 
