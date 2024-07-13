@@ -85,11 +85,7 @@ function pivot_cache(
 end
 
 @inline function _get_primal_dual(AtA::SparseArrays.SparseMatrixCSC, Atb, P)
-    if VERSION < v"1.2"
-        return pinv(Array(AtA[P,P]))*Atb[P]
-    else
-        return qr(AtA[P,P]) \ Atb[P]
-    end
+    return qr(AtA[P,P]) \ Atb[P]
 end
 
 @inline function _get_primal_dual(AtA, Atb, P)
@@ -120,12 +116,12 @@ function pivot_cache(
     end
 
     # compute result for each column
-    if use_parallel && nprocs()>1
-        X = @distributed (hcat) for i = 1:k
-            pivot_cache(AtA, AtB[:,i]; kwargs...)
+    X = Array{T}(undef,n,k)
+    if use_parallel
+        Threads.@threads for i = 1:k
+            X[:,i] = pivot_cache(AtA, AtB[:,i]; kwargs...)
         end
     else
-        X = Array{T}(undef,n,k)
         for i = 1:k
             X[:,i] = pivot_cache(AtA, AtB[:,i]; kwargs...)
         end

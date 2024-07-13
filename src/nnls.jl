@@ -1,7 +1,6 @@
 module NNLS
 
 using LinearAlgebra
-using Distributed
 
 export nnls,
        nnls!,
@@ -206,11 +205,7 @@ Base.size(v::UnsafeVectorView) = (v.len,)
 Base.getindex(v::UnsafeVectorView, idx) = unsafe_load(v.ptr, idx + v.offset)
 Base.setindex!(v::UnsafeVectorView, value, idx) = unsafe_store!(v.ptr, value, idx + v.offset)
 Base.length(v::UnsafeVectorView) = v.len
-@static if VERSION >= v"0.7-"
-    Base.IndexStyle(::Type{V}) where {V <: UnsafeVectorView} = Base.IndexLinear()
-else
-    Base.IndexStyle{V <: UnsafeVectorView}(::Type{V}) = Base.IndexLinear()
-end
+Base.IndexStyle(::Type{V}) where {V <: UnsafeVectorView} = Base.IndexLinear()
 
 """
 UnsafeVectorView only works for isbits types. For other types, we're already
@@ -565,18 +560,18 @@ function nnls(A,
     m, n = size(A)
     k = size(B, 2)
 
-    if k > 1 && use_parallel && nprocs() > 1
-        X = @distributed (hcat) for i = 1:k
-            nnls(A, @view(B[:,i]); max_iter=max_iter)
+    X = Array{T}(undef,n, k)
+    work = NNLSWorkspace(m, n, T)
+    if k > 1 && use_parallel
+        Threads.@threads for i = 1:k
+            X[:, i] = nnls!(work, A, @view(B[:,i]), max_iter)
         end
     else
-        work = NNLSWorkspace(m, n, T)
-        X = Array{T}(undef,n, k)
         for i = 1:k
             X[:, i] = nnls!(work, A, @view(B[:,i]), max_iter)
         end
-        return X
     end
+    return X
 end
 
 end # module

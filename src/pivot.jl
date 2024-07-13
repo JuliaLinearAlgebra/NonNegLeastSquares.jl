@@ -66,11 +66,7 @@ function pivot(A,
 
 		# update primal/dual variables
 		if !all(!, P)
-                    if VERSION < v"1.2"
-                        x[P] =  Array(A[:,P]) \ b
-                    else
-                        x[P] =  A[:,P] \ b
-                    end
+            x[P] =  A[:,P] \ b
 		end
 		y[(!).(P)] =  A[:,(!).(P)]' * ((A[:,P]*x[P]) - b)
 
@@ -94,12 +90,12 @@ function pivot(A,
     k = size(B,2)
 
     # compute result for each column
-    if use_parallel && nprocs()>1
-        X = @distributed (hcat) for i = 1:k
-            pivot(A, B[:,i]; kwargs...)
+    X = Array{T}(undef,n,k)
+    if use_parallel && k > 1
+        Threads.@threads for i = 1:k
+            X[:,i] = pivot(A, B[:,i]; kwargs...)
         end
     else
-        X = Array{T}(undef,n,k)
         for i = 1:k
             X[:,i] = pivot(A, B[:,i]; kwargs...)
         end

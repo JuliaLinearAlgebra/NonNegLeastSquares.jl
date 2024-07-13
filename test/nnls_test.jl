@@ -1,7 +1,6 @@
 import NonNegLeastSquares.NNLS
-# Allocation measurement doesn't work reliably on Julia v0.5 when
-# code coverage checking is enabled.
-const test_allocs = false#VERSION >= v"0.6-" || Base.JLOptions().code_coverage == 0
+
+const test_allocs = false
 
 """
 Measure memory allocation within a function to avoid issues
