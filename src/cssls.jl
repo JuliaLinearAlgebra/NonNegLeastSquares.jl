@@ -38,7 +38,7 @@ function cssls!(
 	num_unique = size(U,2)
 
 	# Find indices associates with unique columns in P
-	E = (Array{Int})[]
+	E = (Vector{Int})[]
 	rp = collect(1:p)
 	for i = 1:num_unique
 		# array of indices where P[:,e] == U[:,i]
