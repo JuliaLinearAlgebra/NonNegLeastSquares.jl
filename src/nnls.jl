@@ -561,12 +561,20 @@ function nnls(A,
     k = size(B, 2)
 
     X = Array{T}(undef,n, k)
-    work = NNLSWorkspace(m, n, T)
     if k > 1 && use_parallel
-        Threads.@threads for i = 1:k
-            X[:, i] = nnls!(work, A, @view(B[:,i]), max_iter)
+        chunksize = ceil(Int, k / Threads.nthreads())
+        tasks = map(1:chunksize:k) do colstart
+            Threads.@spawn begin
+                colend = min(colstart + chunksize - 1, k)
+                work = NNLSWorkspace(m, n, T)
+                for col in colstart:colend
+                    X[:,col] = nnls!(work, A, @view(B[:,col]), max_iter)
+                end
+            end
         end
+        foreach(fetch, tasks)
     else
+        work = NNLSWorkspace(m, n, T)
         for i = 1:k
             X[:, i] = nnls!(work, A, @view(B[:,i]), max_iter)
         end

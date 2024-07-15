@@ -37,7 +37,7 @@ function test_case3() # non-float
     return A, b, x
 end
 
-function test_algorithm(fh::Function, ε::Real=1e-5)
+function test_algorithm(fh::Function, ε::Real=1e-5; use_parallel=false)
     # Solve A*x = b for x, subject to x >=0
     A, b, x = test_case1()
     @test norm(fh(A,b) - x) < ε
@@ -52,29 +52,42 @@ function test_algorithm(fh::Function, ε::Real=1e-5)
         b3 = randn(m)
         x3,resid = pyopt.nnls(A3,b3)
         if resid > ε
-            @test norm(fh(A3,b3) - x3) < ε
+            @test norm(fh(A3,b3; use_parallel) - x3) < ε
         else
-            @test norm(A3*fh(A3,b3) - b3) < ε
+            @test norm(A3*fh(A3,b3; use_parallel) - b3) < ε
+        end
+        B3 = randn(m, 2)
+        X = fh(A3,B3; use_parallel)
+        for j in axes(B3,2)
+            x3,resid = pyopt.nnls(A3,B3[:,j])
+            if resid > ε
+                @test norm(X[:,j] - x3) < ε
+            else
+                @test norm(A3*X[:,j] - B3[:,j]) < ε
+            end
         end
     end
 end
 
-nnls(A,b) = nonneg_lsq(A, b; alg=:nnls)
-nnls_gram(A,b) = nonneg_lsq(A'*A, A'*b; alg=:nnls, gram=true)
-fnnls(A,b) = nonneg_lsq(A, b; alg=:fnnls)
-fnnls_gram(A,b) = nonneg_lsq(A'*A, A'*b; alg=:fnnls, gram=true)
-pivot(A,b) = nonneg_lsq(A, b; alg=:pivot)
-pivot_comb(A,b) = nonneg_lsq(A, b; alg=:pivot, variant=:comb)
-pivot_cache(A,b) = nonneg_lsq(A, b; alg=:pivot, variant=:cache)
+nnls(A,b; use_parallel=false) = nonneg_lsq(A, b; alg=:nnls, use_parallel)
+nnls_gram(A,b; use_parallel=false) = nonneg_lsq(A'*A, A'*b; alg=:nnls, gram=true, use_parallel)
+fnnls(A,b; use_parallel=false) = nonneg_lsq(A, b; alg=:fnnls, use_parallel)
+fnnls_gram(A,b; use_parallel=false) = nonneg_lsq(A'*A, A'*b; alg=:fnnls, gram=true, use_parallel)
+pivot(A,b; use_parallel=false) = nonneg_lsq(A, b; alg=:pivot, use_parallel)
+pivot_comb(A,b; use_parallel=nothing) = nonneg_lsq(A, b; alg=:pivot, variant=:comb)  # doesn't support `use_parallel`
+pivot_cache(A,b; use_parallel=false) = nonneg_lsq(A, b; alg=:pivot, variant=:cache, use_parallel)
 
 algs = [nnls, nnls_gram, fnnls, fnnls_gram, pivot, pivot_comb, pivot_cache]
 errs = fill(1e-5, length(algs))
 
-for (f, ε) in zip(algs, errs)
-    print("testing ")
-    @show f
-    test_algorithm(f, ε)
-    println("done")
+for use_parallel in (false, true)
+    @show use_parallel
+    for (f, ε) in zip(algs, errs)
+        print("testing ")
+        @show f
+        test_algorithm(f, ε; use_parallel)
+        println("done")
+    end
 end
 
 #= non-float test fails, so revisit later
