@@ -9,9 +9,9 @@ Optional arguments:
     max_iter: maximum number of iterations
 
 References:
-	J. Kim and H. Park, Fast nonnegative matrix factorization: An
-	active-set-like method and comparisons, SIAM J. Sci. Comput., 33 (2011),
-	pp. 3261–3281.
+    J. Kim and H. Park, Fast nonnegative matrix factorization: An
+    active-set-like method and comparisons, SIAM J. Sci. Comput., 33 (2011),
+    pp. 3261–3281.
 """
 function pivot(A,
                b::AbstractVector{T};
@@ -43,36 +43,32 @@ function pivot(A,
     # while infeasible (number of infeasible variables > 0)
     while nV > 0
 
-    	if nV < β
-    		# infeasible variables decreased
-    		β = nV  # store number of infeasible variables
-    		α = 3   # reset α
-    	else
-    		# infeasible variables stayed the same or increased
-    		if α >= 1
-    			α = α-1 # tolerate increases for α cycles
-    		else
-    			# backup rule
-    			i = findlast(V)
-    			V = zeros(Bool,q)
-    			V[i] = true
-    		end
-    	end
+        if nV < β
+            # infeasible variables decreased
+            β = nV  # store number of infeasible variables
+            α = 3   # reset α
+        else
+            # infeasible variables stayed the same or increased
+            if α >= 1
+                α = α-1 # tolerate increases for α cycles
+            else
+                # backup rule
+                i = findlast(V)
+                V = zeros(Bool,q)
+                V[i] = true
+            end
+        end
 
-    	# update passive set
+        # update passive set
         #     P & ~V removes infeasible variables from P
         #     V & ~P  moves infeasible variables in ~P to P
-		@__dot__ P = (P & !V) | (V & !P)
+        @__dot__ P = (P & !V) | (V & !P)
 
-		# update primal/dual variables
-		if !all(!, P)
-                    if VERSION < v"1.2"
-                        x[P] =  Array(A[:,P]) \ b
-                    else
-                        x[P] =  A[:,P] \ b
-                    end
-		end
-		y[(!).(P)] =  A[:,(!).(P)]' * ((A[:,P]*x[P]) - b)
+        # update primal/dual variables
+        if !all(!, P)
+            x[P] =  A[:,P] \ b
+        end
+        y[(!).(P)] =  A[:,(!).(P)]' * ((A[:,P]*x[P]) - b)
 
         # check infeasibility
         @__dot__ V = (P & (x < -tol)) | (!P & (y < -tol))
@@ -94,12 +90,12 @@ function pivot(A,
     k = size(B,2)
 
     # compute result for each column
-    if use_parallel && nprocs()>1
-        X = @distributed (hcat) for i = 1:k
-            pivot(A, B[:,i]; kwargs...)
+    X = Array{T}(undef,n,k)
+    if use_parallel && k > 1 && Threads.nthreads() > 1
+        Threads.@threads for i = 1:k
+            X[:,i] = pivot(A, B[:,i]; kwargs...)
         end
     else
-        X = Array{T}(undef,n,k)
         for i = 1:k
             X[:,i] = pivot(A, B[:,i]; kwargs...)
         end

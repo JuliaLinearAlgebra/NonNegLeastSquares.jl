@@ -13,9 +13,9 @@ jobs:
       fail-fast: false
       matrix:
         version:
-          - '1.0'
+          - '1.10'
           - '1'
-          - nightly
+          - 'pre'
         os:
           - ubuntu-latest
           - macOS-latest
@@ -24,9 +24,10 @@ jobs:
           - x64
     env:
       PYTHON: ""
+      JULIA_NUM_THREADS: "auto"
     steps:
       - uses: actions/checkout@v2
-      - uses: julia-actions/setup-julia@v1
+      - uses: julia-actions/setup-julia@v2
         with:
           version: ${{ matrix.version }}
           arch: ${{ matrix.arch }}

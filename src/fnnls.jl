@@ -95,12 +95,12 @@ function fnnls(A,
         AtB = A'*B
     end
 
-    if use_parallel && nprocs()>1
-        X = @distributed (hcat) for i=1:k
-            fnnls(AtA, AtB[:,i]; kwargs...)
+    X = Array{eltype(B)}(undef,n,k)
+    if use_parallel && k > 1 && Threads.nthreads() > 1
+        Threads.@threads for i = 1:k
+            X[:,i] = fnnls(AtA, AtB[:,i]; kwargs...)
         end
     else
-        X = Array{eltype(B)}(undef,n,k)
         for i = 1:k
             X[:,i] = fnnls(AtA, AtB[:,i]; kwargs...)
         end
