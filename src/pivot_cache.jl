@@ -117,7 +117,7 @@ function pivot_cache(
 
     # compute result for each column
     X = Array{T}(undef,n,k)
-    if use_parallel && k > 1
+    if use_parallel && k > 1 && Threads.nthreads() > 1
         Threads.@threads for i = 1:k
             X[:,i] = pivot_cache(AtA, AtB[:,i]; kwargs...)
         end

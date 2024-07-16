@@ -561,7 +561,7 @@ function nnls(A,
     k = size(B, 2)
 
     X = Array{T}(undef,n, k)
-    if k > 1 && use_parallel
+    if k > 1 && use_parallel && Threads.nthreads() > 1
         chunksize = ceil(Int, k / Threads.nthreads())
         tasks = map(1:chunksize:k) do colstart
             Threads.@spawn begin
