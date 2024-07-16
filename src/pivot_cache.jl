@@ -57,8 +57,12 @@ function pivot_cache(
             else
                 # backup rule
                 i = findlast(V)
-                V = zeros(Bool,q)
-                V[i] = true
+                if i !== nothing
+                    V = falses(q)
+                    V[i] = true
+                else
+                    error("V had no true values")
+                end
             end
         end
 
@@ -118,8 +122,10 @@ function pivot_cache(
     # compute result for each column
     X = Array{T}(undef,n,k)
     if use_parallel && k > 1 && Threads.nthreads() > 1
-        Threads.@threads for i = 1:k
-            X[:,i] = pivot_cache(AtA, AtB[:,i]; kwargs...)
+        let AtA = AtA, AtB = AtB     # julia#15276
+            Threads.@threads for i = 1:k
+                X[:,i] = pivot_cache(AtA, AtB[:,i]; kwargs...)
+            end
         end
     else
         for i = 1:k

@@ -54,8 +54,12 @@ function pivot(A,
             else
                 # backup rule
                 i = findlast(V)
-                V = zeros(Bool,q)
-                V[i] = true
+                if i !== nothing
+                    V = falses(q)
+                    V[i] = true
+                else
+                    error("V had no true values")
+                end
             end
         end
 

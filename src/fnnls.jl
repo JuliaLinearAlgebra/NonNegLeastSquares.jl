@@ -97,8 +97,10 @@ function fnnls(A,
 
     X = Array{eltype(B)}(undef,n,k)
     if use_parallel && k > 1 && Threads.nthreads() > 1
-        Threads.@threads for i = 1:k
-            X[:,i] = fnnls(AtA, AtB[:,i]; kwargs...)
+        let AtB = AtB, AtA = AtA    # julia#15276
+            Threads.@threads for i = 1:k
+                X[:,i] = fnnls(AtA, AtB[:,i]; kwargs...)
+            end
         end
     else
         for i = 1:k

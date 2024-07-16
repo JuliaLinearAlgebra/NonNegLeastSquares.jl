@@ -155,6 +155,7 @@ function NNLSWorkspace{T,I}(m, n) where {T, I<:Integer}
                        zero(I)  # nsetp
        )
 end
+NNLSWorkspace{T}(m, n) where T = NNLSWorkspace{T, Int}(m, n)
 
 function Base.resize!(work::NNLSWorkspace{T}, m::Integer, n::Integer) where {T}
     work.QA = Matrix{T}(undef,m, n)
@@ -176,6 +177,7 @@ function load!(work::NNLSWorkspace{T}, A::AbstractMatrix{T}, b::AbstractVector{T
     work
 end
 
+# using this is not recommended, just use NNLSWorkspace{T, I}(m, n) directly.
 NNLSWorkspace(m::Integer, n::Integer,
                     eltype::Type{T}=Float64,
                     indextype::Type{I}=Int) where {T,I} = NNLSWorkspace{T, I}(m, n)
@@ -190,9 +192,15 @@ end
 
 
 """
-Views in Julia still allocate some memory (since they need to keep
-a reference to the original array). This type allocates no memory
-and does no bounds checking. Use it with caution.
+    UnsafeVectorView(parent, start_ind, len)
+
+Create an unsafe view of a linear range of a dense array `parent`.
+
+The original motivation for this type was that views in Julia were not
+zero-cost abstractions. However, in modern Julia versions this is no longer
+the case.
+
+TODO: remove this type
 """
 struct UnsafeVectorView{T} <: AbstractVector{T}
     offset::Int
@@ -563,10 +571,12 @@ function nnls(A,
     X = Array{T}(undef,n, k)
     if k > 1 && use_parallel && Threads.nthreads() > 1
         chunksize = ceil(Int, k / Threads.nthreads())
-        tasks = map(1:chunksize:k) do colstart
-            Threads.@spawn begin
+        colstarts = 1:chunksize:k
+        tasks = Vector{Task}(undef, length(colstarts))
+        for (i, colstart) in enumerate(colstarts)
+            tasks[i] = Threads.@spawn begin
                 colend = min(colstart + chunksize - 1, k)
-                work = NNLSWorkspace(m, n, T)
+                work = NNLSWorkspace{T}(m, n)
                 for col in colstart:colend
                     X[:,col] = nnls!(work, A, @view(B[:,col]), max_iter)
                 end
@@ -574,9 +584,10 @@ function nnls(A,
         end
         foreach(fetch, tasks)
     else
-        work = NNLSWorkspace(m, n, T)
-        for i = 1:k
-            X[:, i] = nnls!(work, A, @view(B[:,i]), max_iter)
+        let work = NNLSWorkspace{T}(m, n)
+            for i = 1:k
+                X[:, i] = nnls!(work, A, @view(B[:,i]), max_iter)
+            end
         end
     end
     return X
