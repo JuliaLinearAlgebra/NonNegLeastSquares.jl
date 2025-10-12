@@ -37,8 +37,6 @@ function pivot_cache(
     #    we want X[~P]== 0, Y[~P] >= 0
     P = falses(q)
 
-    y[(!).(P)] = AtA[(!).(P),P] * x[P] - Atb[(!).(P)]
-
     # identify indices of infeasible variables
     V = @. (P & (x < -tol)) | (!P & (y < -tol))
     nV = sum(V)
