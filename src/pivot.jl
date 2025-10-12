@@ -66,7 +66,7 @@ function pivot(A,
         # update passive set
         #     P & ~V removes infeasible variables from P
         #     V & ~P  moves infeasible variables in ~P to P
-        @__dot__ P = (P & !V) | (V & !P)
+        @. P = (P & !V) | (V & !P)
 
         # update primal/dual variables
         if !all(!, P)
@@ -75,7 +75,7 @@ function pivot(A,
         y[(!).(P)] =  A[:,(!).(P)]' * ((A[:,P]*x[P]) - b)
 
         # check infeasibility
-        @__dot__ V = (P & (x < -tol)) | (!P & (y < -tol))
+        @. V = (P & (x < -tol)) | (!P & (y < -tol))
         nV = sum(V)
     end
 
