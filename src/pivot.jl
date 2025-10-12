@@ -34,8 +34,6 @@ function pivot(A,
     #    we want X[~P]== 0, Y[~P] >= 0
     P = BitArray(false for _ in 1:q)
 
-    y[(!).(P)] =  A[:,(!).(P)]' * (A[:,P]*x[P] - b)
-
     # identify indices of infeasible variables
     V = @__dot__ (P & (x < -tol)) | (!P & (y < -tol))
     nV = sum(V)
