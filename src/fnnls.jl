@@ -49,7 +49,7 @@ function fnnls(AtA,
             iter += 1
 
             # find indices in P where s is negative
-            ind = @__dot__ (s <= tol) & P
+            ind = @. (s <= tol) & P
 
             # calculate step size, α, to prevent any xᵢ from going negative
             α = minimum(x[ind] ./ (x[ind] - s[ind]))
