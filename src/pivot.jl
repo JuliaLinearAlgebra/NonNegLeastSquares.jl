@@ -37,7 +37,7 @@ function pivot(A,
     y[(!).(P)] =  A[:,(!).(P)]' * (A[:,P]*x[P] - b)
 
     # identify indices of infeasible variables
-    V = @__dot__ (P & (x < -tol)) | (!P & (y < -tol))
+    V = @. (P & (x < -tol)) | (!P & (y < -tol))
     nV = sum(V)
 
     # while infeasible (number of infeasible variables > 0)
