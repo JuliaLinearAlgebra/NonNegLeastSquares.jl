@@ -4,7 +4,7 @@ using NonNegLeastSquares: nonneg_lsq
 using SparseArrays: sprand
 
 #test specific
-#using Random
+using Random #: seed!
 using PyCall: pyimport_conda
 const pyopt = pyimport_conda("scipy.optimize", "scipy")
 
