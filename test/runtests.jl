@@ -1,11 +1,11 @@
-using Test
+using Test # @test, @testset
 using LinearAlgebra: norm, I
 using NonNegLeastSquares: nonneg_lsq
-using SparseArrays
+using SparseArrays: sprand
 
 #test specific
-using Random
-using PyCall
+#using Random
+using PyCall: pyimport_conda
 const pyopt = pyimport_conda("scipy.optimize", "scipy")
 
 function test_case1()
