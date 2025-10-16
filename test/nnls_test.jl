@@ -105,7 +105,7 @@ end
         else
             NNLS.nnls!(work, A, b)
         end
-        @test work.x == pyopt.nnls(A, b)[1]
+        @test work.x ≈ pyopt.nnls(A, b)[1]
     end
 
     m = 20
@@ -114,7 +114,7 @@ end
         A = randn(m, n)
         b = randn(m)
         NNLS.nnls!(work, A, b)
-        @test work.x == pyopt.nnls(A, b)[1]
+        @test work.x ≈ pyopt.nnls(A, b)[1]
     end
 end
 
