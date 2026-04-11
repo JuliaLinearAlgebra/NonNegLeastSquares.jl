@@ -23,8 +23,8 @@ end
         n = rand(1:10)
         A = randn(m, n)
         b = randn(m)
-        x1 = lhdm(A, b)
-        x2 = lhdm(BigFloat.(A), BigFloat.(b))
+        x1 = LHDM.lhdm(A, b)
+        x2 = LHDM.lhdm(BigFloat.(A), BigFloat.(b))
         @test x1 ≈ x2
     end
 end
@@ -36,8 +36,8 @@ end
         n = rand(1:10)
         A = randn(m, n)
         b = randn(m)
-        x1 = lhdm(A, b)
-        x2 = lhdm(Float32.(A), Float32.(b))
+        x1 = LHDM.lhdm(A, b)
+        x2 = LHDM.lhdm(Float32.(A), Float32.(b))
         @test x1 ≈ x2
     end
 end
@@ -70,7 +70,7 @@ end
         else
             LHDM.lhdm!(work, A, b)
         end
-        @test work.x ≈ lhdm(A, b)
+        @test work.x ≈ LHDM.lhdm(A, b)
     end
 
     m = 20
@@ -79,7 +79,7 @@ end
         A = randn(m, n)
         b = randn(m)
         LHDM.lhdm!(work, A, b)
-        @test work.x ≈ lhdm(A, b)
+        @test work.x ≈ LHDM.lhdm(A, b)
     end
 end
 
@@ -108,7 +108,7 @@ end
         A = randn(m, n)
         x = rand(n)
         b = A * x
-        x_sparse = lhdm(A, b)
+        x_sparse = LHDM.lhdm(A, b)
         @test maximum(abs.(A * x_sparse .- b)) <= 1e-12
     end
 end
