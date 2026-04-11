@@ -61,8 +61,6 @@ function nonneg_lsq(
         return pivot_comb(A, B; kwargs...)
     elseif alg == :pivot
         return pivot(A, B; kwargs...)
-    elseif alg == :nnls_mod
-        return nnls_mod(A, B; kwargs...)
     elseif alg == :lhdm
         return lhdm(A, B; kwargs...)
     else
