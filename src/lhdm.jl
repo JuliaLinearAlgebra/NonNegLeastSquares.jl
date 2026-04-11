@@ -76,46 +76,6 @@ function LHDMWorkspace(A::Matrix{T}, b::Vector{T}, indextype::Type{I}=Int) where
     work
 end
 
-
-"""
-    UnsafeVectorView(parent, start_ind, len)
-
-Create an unsafe view of a linear range of a dense array `parent`.
-
-The original motivation for this type was that views in Julia were not
-zero-cost abstractions. However, in modern Julia versions this is no longer
-the case.
-
-TODO: remove this type
-"""
-struct UnsafeVectorView{T} <: AbstractVector{T}
-    offset::Int
-    len::Int
-    ptr::Ptr{T}
-end
-
-UnsafeVectorView(parent::DenseArray{T}, start_ind::Integer, len::Integer) where {T} = UnsafeVectorView{T}(start_ind - 1, len, pointer(parent))
-Base.size(v::UnsafeVectorView) = (v.len,)
-Base.getindex(v::UnsafeVectorView, idx) = unsafe_load(v.ptr, idx + v.offset)
-Base.setindex!(v::UnsafeVectorView, value, idx) = unsafe_store!(v.ptr, value, idx + v.offset)
-Base.length(v::UnsafeVectorView) = v.len
-Base.IndexStyle(::Type{V}) where {V <: UnsafeVectorView} = Base.IndexLinear()
-
-"""
-UnsafeVectorView only works for isbits types. For other types, we're already
-allocating lots of memory elsewhere, so creating a new View is fine.
-
-This function looks type-unstable, but the isbitstype(T) test can be evaluated
-by the compiler, so the result is actually type-stable.
-"""
-function fastview(parent::DenseArray{T}, start_ind::Integer, len::Integer) where {T}
-    if isbitstype(T)
-        UnsafeVectorView(parent, start_ind, len)
-    else
-        @view(parent[start_ind:(start_ind + len - 1)])
-    end
-end
-
 @noinline function checkargs(work::LHDMWorkspace)
     m, n = size(work.QA)
     @assert size(work.Qb) == (m,)
@@ -158,7 +118,6 @@ function lhdm!(work::LHDMWorkspace{T, TI},
     checkargs(work)
 
     A = work.QA
-    Ainds = LinearIndices(A)
     b = work.Qb
     u = work.u
     x = work.x
@@ -294,12 +253,12 @@ function lhdm!(work::LHDMWorkspace{T, TI},
             j = idx[iz]
             ## FORM HOUSEHOLDER
             up = construct_householder!(
-                fastview(A, Ainds[nsetp + 1, j], m - nsetp), up)
+                view(A, nsetp+1:m, j), up)
             ## APPLY TO Qᵀb
             apply_householder!(
-                fastview(A, Ainds[nsetp + 1, j], m - nsetp),
+                view(A, nsetp+1:m, j),
                 up,
-                fastview(zz, nsetp + 1, m - nsetp))
+                view(zz, nsetp+1:m))
             ## SHIFT AROUND INDICES
             idx[iz] = idx[iz1]
             idx[iz1] = j
@@ -317,9 +276,9 @@ function lhdm!(work::LHDMWorkspace{T, TI},
                 for jz in iz1:iz2
                     jj = idx[jz]
                     apply_householder!(
-                        fastview(A, Ainds[nsetp, j], m - nsetp + 1),
+                        view(A, nsetp:m, j),
                         up,
-                        fastview(A, Ainds[nsetp, jj], m - nsetp + 1))
+                        view(A, nsetp:m, jj))
                 end
             end
             if nsetp != m
