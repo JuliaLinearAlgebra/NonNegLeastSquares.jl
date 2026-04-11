@@ -113,3 +113,4 @@ end
 @testset "FNNLS" begin include("fnnls_test.jl") end
 @testset "Pivot" begin include("pivot_test.jl") end
 @testset "Sparse" begin include("sparse_test.jl") end
+@testset "LHDM" begin include("lhdm_test.jl") end
