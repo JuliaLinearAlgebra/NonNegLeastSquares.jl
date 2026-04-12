@@ -16,20 +16,8 @@ macro wrappedallocs(expr)
     end
 end
 
-@testset "bigfloat" begin
-    Random.seed!(5)
-    for i in 1:100
-        m = rand(1:10)
-        n = rand(1:10)
-        A = randn(m, n)
-        b = randn(m)
-        x1 = LHDM.lhdm(A, b)
-        x2 = LHDM.lhdm(BigFloat.(A), BigFloat.(b))
-        @test x1 ≈ x2
-    end
-end
 
-@testset "Float32" begin
+@testset "Float32 and BigFloat" begin
     Random.seed!(5)
     for i in 1:100
         m = rand(1:10)
@@ -38,7 +26,9 @@ end
         b = randn(m)
         x1 = LHDM.lhdm(A, b)
         x2 = LHDM.lhdm(Float32.(A), Float32.(b))
+        x3 = LHDM.lhdm(BigFloat.(A), BigFloat.(b))
         @test x1 ≈ x2
+        @test x1 ≈ x3
     end
 end
 
@@ -109,6 +99,6 @@ end
         x = rand(n)
         b = A * x
         x_sparse = LHDM.lhdm(A, b)
-        @test maximum(abs.(A * x_sparse .- b)) <= 1e-12
+        @test maximum(abs, A * x_sparse .- b) <= 1e-12
     end
 end
