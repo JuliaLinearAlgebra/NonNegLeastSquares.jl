@@ -86,20 +86,6 @@ end
     @assert size(work.idx) == (n,)
 end
 
-function largest_positive_dual(w::AbstractVector{T},
-                                      idx::AbstractVector{TI}, range) where {T,TI}
-    wmax = zero(T)
-    izmax = zero(TI)
-    for i in range
-        j = idx[i]
-        if w[j] > wmax
-            wmax = w[j]
-            izmax = i
-        end
-    end
-    wmax, izmax
-end
-
 
 """
 Algorithm LHDM: LAWSON HANSON DEVIATION MAXIMIZATION FOR NONNEGATIVE LEAST SQUARES
@@ -181,7 +167,8 @@ function lhdm!(work::LHDMWorkspace{T, TI},
         end
 
         # FIND LARGEST POSITIVE W(J).
-        wmax, izmax = largest_positive_dual(w, idx, iz1:iz2)
+        wmax, izidx = findmax(iz -> w[idx[iz]], iz1:iz2)
+        izmax = (iz1:iz2)[izidx]
 
         # IF WMAX .LE. 0. GO TO TERMINATION.
         # THIS INDICATES SATISFACTION OF THE KUHN-TUCKER CONDITIONS.
