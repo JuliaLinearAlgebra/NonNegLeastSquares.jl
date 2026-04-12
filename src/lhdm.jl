@@ -447,12 +447,13 @@ by "Lawson-Hanson algorithm with deviation maximization" (LHDM)
 as published by Dessole et al. in 2023:
 https://doi.org/10.1002/nla.2490
 Optional arguments:
-* `max_iter`: maximum number of iterations (counts inner loop iterations)
+* `max_iter=3*size(A,2)`: maximum number of iterations (counts inner loop iterations)
 Optional keyword arguments:
-* `kmax`: maximum number of indices added at a time (k=1 for standard LH-NNLS)
-* `thres_w`: threshold factor  on dual vector for addition (between 0 and 1)
-* `thres_nrm`: threshold factor on norm of columns for addition (between 0 and 1)
-* `thres_cos`: threshold factor on cosine matrix (orthogonality) for addition (between 0 and 1)
+* `use_parallel::Bool=true`: if `b` is a `AbstractMatrix`, parallelizes calls over columns of `b`
+* `kmax=32`: maximum number of indices added at a time (k=1 for standard LH-NNLS)
+* `thres_w=0.6`: threshold factor  on dual vector for addition (between 0 and 1)
+* `thres_nrm=0.15`: threshold factor on norm of columns for addition (between 0 and 1)
+* `thres_cos=0.9`: threshold factor on cosine matrix (orthogonality) for addition (between 0 and 1)
 """
 function lhdm(A,
               b::AbstractVector{T},
