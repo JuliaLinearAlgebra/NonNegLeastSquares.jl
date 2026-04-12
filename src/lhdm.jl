@@ -443,15 +443,11 @@ function lhdm!(work::LHDMWorkspace{T, TI},
 end
 
 function lhdm!(work::LHDMWorkspace{T},
-                  A::AbstractMatrix{T},
-                  b::AbstractVector{T},
-                  max_iter=(3 * size(A, 2));
-                  kmax=32,
-                  thres_w=0.6,
-                  thres_nrm=0.15,
-                  thres_cos=0.9) where {T}
+               A::AbstractMatrix{T},
+               b::AbstractVector{T},
+               args...; kwargs...) where {T}
     load!(work, A, b)
-    lhdm!(work, max_iter, kmax=kmax, thres_w=thres_w, thres_nrm=thres_nrm, thres_cos=thres_cos)
+    lhdm!(work, args...; kwargs...)
     work.x
 end
 
@@ -459,36 +455,31 @@ end
 """
     x = lhdm(A, b; ...)
 
-Solves non-negative least-squares problem by the active set method
-of Lawson & Hanson (1974).
-
+Solves non-negative least-squares (NNLS) problem
+by "Lawson-Hanson algorithm with deviation maximization" (LHDM)
+as published by Dessole et al. in 2023:
+https://doi.org/10.1002/nla.2490
 Optional arguments:
 * `max_iter`: maximum number of iterations (counts inner loop iterations)
-
-References:
-    Lawson, C.L. and R.J. Hanson, Solving Least-Squares Problems,
-    Prentice-Hall, Chapter 23, p. 161, 1974.
+Optional keyword arguments:
+* `kmax`: maximum number of indices added at a time (k=1 for standard LH-NNLS)
+* `thres_w`: threshold factor  on dual vector for addition (between 0 and 1)
+* `thres_nrm`: threshold factor on norm of columns for addition (between 0 and 1)
+* `thres_cos`: threshold factor on cosine matrix (orthogonality) for addition (between 0 and 1)
 """
 function lhdm(A,
-              b::AbstractVector{T};
-              max_iter::Int=(3 * size(A, 2)),
-              kmax=32,
-              thres_w=0.6,
-              thres_nrm=0.15,
-              thres_cos=0.9) where {T}
+              b::AbstractVector{T},
+              args...; kwargs...) where {T}
     work = LHDMWorkspace(A, b)
-    lhdm!(work, max_iter, kmax=kmax, thres_w=thres_w, thres_nrm=thres_nrm, thres_cos=thres_cos)
+    lhdm!(work, args...; kwargs...)
     work.x
 end
 
 function lhdm(A,
-              B::AbstractMatrix{T};
-              use_parallel = true,
-              max_iter::Int=(3 * size(A, 2)),
-              kmax=32,
-              thres_w=0.6,
-              thres_nrm=0.15,
-              thres_cos=0.9) where {T}
+              B::AbstractMatrix{T},
+              args...;
+              use_parallel::Bool = true,
+              kwargs...) where {T}
 
     m, n = size(A)
     k = size(B, 2)
@@ -503,7 +494,7 @@ function lhdm(A,
                 colend = min(colstart + chunksize - 1, k)
                 work = LHDMWorkspace{T}(m, n)
                 for col in colstart:colend
-                    X[:,col] = lhdm!(work, A, @view(B[:,col]), max_iter, kmax=kmax, thres_w=thres_w, thres_nrm=thres_nrm, thres_cos=thres_cos)
+                    X[:,col] = lhdm!(work, A, @view(B[:,col]), args...; kwargs...)
                 end
             end
         end
@@ -511,7 +502,7 @@ function lhdm(A,
     else
         let work = LHDMWorkspace{T}(m, n)
             for i = 1:k
-                X[:, i] = lhdm!(work, A, @view(B[:,i]), max_iter, kmax=kmax, thres_w=thres_w, thres_nrm=thres_nrm, thres_cos=thres_cos)
+                X[:, i] = lhdm!(work, A, @view(B[:,i]), args...; kwargs...)
             end
         end
     end
