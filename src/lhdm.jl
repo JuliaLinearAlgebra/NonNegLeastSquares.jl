@@ -103,6 +103,11 @@ function lhdm!(work::LHDMWorkspace{T, TI},
                thres_cos::Real = 0.9) where {T, TI}
     checkargs(work)
 
+    @assert kmax >= 1
+    @assert 0.0 ≤ thres_w ≤ 1.0
+    @assert 0.0 ≤ thres_nrm ≤ 1.0
+    @assert 0.0 ≤ thres_cos ≤ 1.0
+
     A = work.QA
     b = work.Qb
     u = work.u
