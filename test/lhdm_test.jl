@@ -90,7 +90,7 @@ if test_allocs
     end
 end
 
-@testset "LHDM guaranteed positive exact solution" begin
+@testset "LHDM guaranteed positive exact solution and use_parallel" begin
     Random.seed!(101)
     m = 10
     n = 20
@@ -99,6 +99,14 @@ end
         x = rand(n)
         b = A * x
         x_sparse = LHDM.lhdm(A, b)
+        @test maximum(abs, A * x_sparse .- b) <= 1e-12
+    end
+    k = 5
+    for _ in 1:100
+        A = randn(m, n)
+        x = rand(n, k)
+        b = A * x
+        x_sparse = LHDM.lhdm(A, b, use_parallel=true)
         @test maximum(abs, A * x_sparse .- b) <= 1e-12
     end
 end
