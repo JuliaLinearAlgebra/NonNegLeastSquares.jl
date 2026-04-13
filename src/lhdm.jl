@@ -97,10 +97,10 @@ https://doi.org/10.1002/nla.2490
 """
 function lhdm!(work::LHDMWorkspace{T, TI},
                max_iter::Integer=(3 * size(work.QA, 2));
-               kmax=32,
-               thres_w=0.6,
-               thres_nrm=0.15,
-               thres_cos=0.9) where {T, TI}
+               kmax::Int = 32,
+               thres_w::Real = 0.6,
+               thres_nrm::Real = 0.15,
+               thres_cos::Real = 0.9) where {T, TI}
     checkargs(work)
 
     A = work.QA
