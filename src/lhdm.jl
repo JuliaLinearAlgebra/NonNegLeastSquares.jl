@@ -477,7 +477,7 @@ function lhdm(A,
     m, n = size(A)
     k = size(B, 2)
 
-    X = Array{T}(undef,n, k)
+    X = Array{T}(undef, n, k)
     if k > 1 && use_parallel && Threads.nthreads() > 1
         chunksize = ceil(Int, k / Threads.nthreads())
         colstarts = 1:chunksize:k
