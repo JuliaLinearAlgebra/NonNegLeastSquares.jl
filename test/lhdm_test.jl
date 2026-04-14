@@ -1,22 +1,5 @@
 import NonNegLeastSquares.LHDM
 
-const test_allocs = false
-
-"""
-Measure memory allocation within a function to avoid issues
-with global variables.
-"""
-macro wrappedallocs(expr)
-    argnames = [gensym() for a in expr.args]
-    quote
-        function g($(argnames...))
-            @allocated $(Expr(expr.head, argnames...))
-        end
-        $(Expr(:call, :g, [esc(a) for a in expr.args]...))
-    end
-end
-
-
 @testset "Float32 and BigFloat" begin
     Random.seed!(5)
     for i in 1:100
@@ -32,17 +15,15 @@ end
     end
 end
 
-if test_allocs
-    @testset "lhdm allocations" begin
-        Random.seed!(101)
-        for i in 1:50
-            m = rand(20:100)
-            n = rand(20:100)
-            A = randn(m, n)
-            b = randn(m)
-            work = @inferred LHDM.LHDMWorkspace(A, b)
-            @test @wrappedallocs(LHDM.lhdm!(work)) == 0
-        end
+@testset "lhdm allocations" begin
+    Random.seed!(101)
+    for i in 1:50
+        m = rand(20:100)
+        n = rand(20:100)
+        A = randn(m, n)
+        b = randn(m)
+        work = @inferred LHDM.LHDMWorkspace(A, b)
+        @test @wrappedallocs(LHDM.lhdm!(work)) == 0
     end
 end
 
@@ -55,11 +36,7 @@ end
     for i in 1:100
         A = randn(m, n)
         b = randn(m)
-        if test_allocs
-            @test @wrappedallocs(LHDM.lhdm!(work, A, b)) == 0
-        else
-            LHDM.lhdm!(work, A, b)
-        end
+        @test @wrappedallocs(LHDM.lhdm!(work, A, b)) == 0
         @test work.x ≈ LHDM.lhdm(A, b)
     end
 
@@ -73,21 +50,19 @@ end
     end
 end
 
-if test_allocs
-    @testset "non-Int Integer workspace" begin
-        m = 10
-        n = 20
-        A = randn(m, n)
-        b = randn(m)
-        work = @inferred LHDM.LHDMWorkspace(A, b, Int32)
-        # Compile
-        LHDM.lhdm!(work)
+@testset "non-Int Integer workspace" begin
+    m = 10
+    n = 20
+    A = randn(m, n)
+    b = randn(m)
+    work = @inferred LHDM.LHDMWorkspace(A, b, Int32)
+    # Compile
+    LHDM.lhdm!(work)
 
-        A = randn(m, n)
-        b = randn(m)
-        work = @inferred LHDM.LHDMWorkspace(A, b, Int32)
-        @test @wrappedallocs(LHDM.lhdm!(work)) == 0
-    end
+    A = randn(m, n)
+    b = randn(m)
+    work = @inferred LHDM.LHDMWorkspace(A, b, Int32)
+    @test @wrappedallocs(LHDM.lhdm!(work)) == 0
 end
 
 @testset "LHDM guaranteed positive exact solution and use_parallel" begin
