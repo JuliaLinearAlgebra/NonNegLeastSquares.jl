@@ -25,6 +25,7 @@ nonneg_lsq(A,b;alg=:fnnls) # Fast NNLS
 nonneg_lsq(A,b;alg=:pivot) # Pivot Method
 nonneg_lsq(A,b;alg=:pivot,variant=:cache) # Pivot Method (cache pseudoinverse up front)
 nonneg_lsq(A,b;alg=:pivot,variant=:comb) # Pivot Method with combinatorial least-squares
+nonneg_lsq(A,b;alg=:lhdm)  # LHDM
 ```
 
 Default algorithm:
@@ -48,6 +49,8 @@ nonneg_lsq(A'*A,A'*b;alg=:fnnls,gram=true) # Fast NNLS
      * Bro R, De Jong S. [A fast non-negativitity-constrained least squares algorithm](https://dx.doi.org/10.1002%2F%28SICI%291099-128X%28199709%2F10%2911%3A5%3C393%3A%3AAID-CEM483%3E3.0.CO%3B2-L). Journal of Chemometrics. 11, 393–401 (1997)
 * **Pivot Method**:
      * Kim J, Park H. [Fast nonnegative matrix factorization: an active-set-like method and comparisons](http://www.cc.gatech.edu/~hpark/papers/SISC_082117RR_Kim_Park.pdf). SIAM Journal on Scientific Computing 33.6 (2011): 3261-3281.
+* **LHDM**:
+     * Dessole M, Dell'Orto M, Marcuzzi F. [The Lawson-Hanson algorithm with deviation maximization: Finite convergence and sparse recovery](https://doi.org/10.1002/nla.2490). Numerical Linear Algebra with Applications 30.5 (2023): e2490.
 
 ### Installation:
 
@@ -97,7 +100,7 @@ PIVOT:none →   2.337322 seconds (1.09 M allocations: 4.098 GB, 22.74% gc time)
 PIVOT:comb →   0.096450 seconds (586.76 k allocations: 23.569 MB, 3.01% gc time)
 ```
 
-### Algorithims That Need Implementing:
+### Algorithms That Need Implementing:
 
 Pull requests are more than welcome, whether it is improving existing algorithms, or implementing new ones.
 

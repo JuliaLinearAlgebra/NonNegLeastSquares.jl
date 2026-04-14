@@ -17,7 +17,8 @@ include("pivot.jl")
 include("pivot_comb.jl")
 include("pivot_cache.jl")
 include("admm.jl")
-
+include("lhdm.jl")
+using .LHDM: lhdm
 ## Common interface to algorithms
 include("interface.jl")
 

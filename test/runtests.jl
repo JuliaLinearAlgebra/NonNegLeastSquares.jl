@@ -8,6 +8,20 @@ using Random #: seed!
 using PyCall: pyimport_conda
 const pyopt = pyimport_conda("scipy.optimize", "scipy")
 
+"""
+Measure memory allocation within a function to avoid issues
+with global variables.
+"""
+macro wrappedallocs(expr)
+    argnames = [gensym() for a in expr.args]
+    quote
+        function g($(argnames...))
+            @allocated $(Expr(expr.head, argnames...))
+        end
+        $(Expr(:call, :g, [esc(a) for a in expr.args]...))
+    end
+end
+
 function test_case1()
     A = [ 0.53879488  0.65816267
           0.12873446  0.98669198
@@ -76,8 +90,9 @@ fnnls_gram(A,b; use_parallel=false) = nonneg_lsq(A'*A, A'*b; alg=:fnnls, gram=tr
 pivot(A,b; use_parallel=false) = nonneg_lsq(A, b; alg=:pivot, use_parallel)
 pivot_comb(A,b; use_parallel=nothing) = nonneg_lsq(A, b; alg=:pivot, variant=:comb)  # doesn't support `use_parallel`
 pivot_cache(A,b; use_parallel=false) = nonneg_lsq(A, b; alg=:pivot, variant=:cache, use_parallel)
+lhdm(A,b; use_parallel=false) = nonneg_lsq(A, b; alg=:lhdm, use_parallel)
 
-algs = [nnls, nnls_gram, fnnls, fnnls_gram, pivot, pivot_comb, pivot_cache]
+algs = [nnls, nnls_gram, fnnls, fnnls_gram, pivot, pivot_comb, pivot_cache, lhdm]
 errs = fill(1e-5, length(algs))
 
 for use_parallel in (false, true)
@@ -113,3 +128,4 @@ end
 @testset "FNNLS" begin include("fnnls_test.jl") end
 @testset "Pivot" begin include("pivot_test.jl") end
 @testset "Sparse" begin include("sparse_test.jl") end
+@testset "LHDM" begin include("lhdm_test.jl") end
