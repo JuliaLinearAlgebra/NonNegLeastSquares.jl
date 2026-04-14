@@ -24,9 +24,9 @@ end
         n = rand(1:10)
         A = randn(m, n)
         b = randn(m)
-        x1 = LHDM.lhdm(A, b)
-        x2 = LHDM.lhdm(Float32.(A), Float32.(b))
-        x3 = LHDM.lhdm(BigFloat.(A), BigFloat.(b))
+        x1 = @inferred LHDM.lhdm(A, b)
+        x2 = @inferred LHDM.lhdm(Float32.(A), Float32.(b))
+        x3 = @inferred LHDM.lhdm(BigFloat.(A), BigFloat.(b))
         @test x1 ≈ x2
         @test x1 ≈ x3
     end
@@ -40,7 +40,7 @@ if test_allocs
             n = rand(20:100)
             A = randn(m, n)
             b = randn(m)
-            work = LHDM.LHDMWorkspace(A, b)
+            work = @inferred LHDM.LHDMWorkspace(A, b)
             @test @wrappedallocs(LHDM.lhdm!(work)) == 0
         end
     end
@@ -50,7 +50,7 @@ end
     Random.seed!(200)
     m = 10
     n = 20
-    work = LHDM.LHDMWorkspace(m, n)
+    work = @inferred LHDM.LHDMWorkspace(m, n)
     LHDM.lhdm!(work, randn(m, n), randn(m))
     for i in 1:100
         A = randn(m, n)
@@ -79,13 +79,13 @@ if test_allocs
         n = 20
         A = randn(m, n)
         b = randn(m)
-        work = LHDM.LHDMWorkspace(A, b, Int32)
+        work = @inferred LHDM.LHDMWorkspace(A, b, Int32)
         # Compile
         LHDM.lhdm!(work)
 
         A = randn(m, n)
         b = randn(m)
-        work = LHDM.LHDMWorkspace(A, b, Int32)
+        work = @inferred LHDM.LHDMWorkspace(A, b, Int32)
         @test @wrappedallocs(LHDM.lhdm!(work)) == 0
     end
 end
@@ -99,14 +99,14 @@ end
         x = rand(n)
         b = A * x
         x_sparse = LHDM.lhdm(A, b)
-        @test maximum(abs, A * x_sparse .- b) <= 1e-12
+        @test A * x_sparse ≈ b
     end
     k = 5
     for _ in 1:100
         A = randn(m, n)
         x = rand(n, k)
         b = A * x
-        x_sparse = LHDM.lhdm(A, b, use_parallel=true)
-        @test maximum(abs, A * x_sparse .- b) <= 1e-12
+        x_sparse = @inferred LHDM.lhdm(A, b, use_parallel=true)
+        @test A * x_sparse ≈ b
     end
 end
