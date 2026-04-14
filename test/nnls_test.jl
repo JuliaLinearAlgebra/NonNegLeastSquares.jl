@@ -2,20 +2,6 @@ import NonNegLeastSquares.NNLS
 
 const test_allocs = false
 
-"""
-Measure memory allocation within a function to avoid issues
-with global variables.
-"""
-macro wrappedallocs(expr)
-    argnames = [gensym() for a in expr.args]
-    quote
-        function g($(argnames...))
-            @allocated $(Expr(expr.head, argnames...))
-        end
-        $(Expr(:call, :g, [esc(a) for a in expr.args]...))
-    end
-end
-
 @testset "bigfloat" begin
     Random.seed!(5)
     for i in 1:100

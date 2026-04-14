@@ -8,6 +8,20 @@ using Random #: seed!
 using PyCall: pyimport_conda
 const pyopt = pyimport_conda("scipy.optimize", "scipy")
 
+"""
+Measure memory allocation within a function to avoid issues
+with global variables.
+"""
+macro wrappedallocs(expr)
+    argnames = [gensym() for a in expr.args]
+    quote
+        function g($(argnames...))
+            @allocated $(Expr(expr.head, argnames...))
+        end
+        $(Expr(:call, :g, [esc(a) for a in expr.args]...))
+    end
+end
+
 function test_case1()
     A = [ 0.53879488  0.65816267
           0.12873446  0.98669198
